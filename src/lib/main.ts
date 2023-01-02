@@ -1,0 +1,229 @@
+import * as THREE from 'three';
+// import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import Stats from 'three/examples/jsm/libs/stats.module';
+
+export class CubeMesh extends THREE.Mesh {
+	instance: PathVisualzer;
+	_geometry: THREE.BoxGeometry;
+	size: number;
+	constructor(instance: PathVisualzer, material: THREE.Material, size: number) {
+		const geometry = new THREE.BoxGeometry(size, size, size);
+		super(geometry, material);
+		this.size = size;
+		this._geometry = geometry;
+		this.instance = instance;
+	}
+	setSize(size: number) {
+		this._geometry.dispose();
+		this._geometry = new THREE.BoxGeometry(size, size, size);
+		(this as any).geometry = this._geometry;
+		return this;
+	}
+
+	setPositon() {
+		this.position
+			.divideScalar(this.size)
+			.floor()
+			.multiplyScalar(this.size)
+			.addScalar(this.size / 2);
+
+		return this;
+	}
+
+	add() {
+		this.instance.scene.add(this);
+		return this;
+	}
+}
+
+export class PathVisualzer {
+	camera: THREE.PerspectiveCamera;
+	scene: THREE.Scene;
+	stats!: Stats;
+	// controls?: OrbitControls;
+	renderer: THREE.WebGLRenderer;
+	container: HTMLDivElement;
+	raycaster: THREE.Raycaster;
+	mouse: THREE.Vector2;
+	objects: any[];
+
+	rollOverMesh!: CubeMesh;
+
+	initalized = false;
+	isMouseDown = false;
+
+	gridSettings = {
+		size: 5000,
+		divison: 40
+	};
+	grid: any[][];
+	constructor(container: HTMLDivElement) {
+		this.container = container;
+		this.raycaster = new THREE.Raycaster();
+		this.mouse = new THREE.Vector2();
+		this.objects = [];
+
+		this.camera = new THREE.PerspectiveCamera(
+			45,
+			window.innerWidth / window.innerHeight,
+			1,
+			1000000
+		);
+		this.renderer = new THREE.WebGLRenderer({ antialias: true });
+		this.scene = new THREE.Scene();
+		// this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+
+		this.grid = [];
+		for (let i = 0; i < this.gridSettings.size - 1; ++i) {
+			let currRow = [];
+			for (let j = 0; j < this.gridSettings.size - 1; ++j) {
+				currRow.push(`${i}, ${j}`);
+			}
+			this.grid.push(currRow);
+		}
+	}
+
+	init() {
+		//Camera
+		this.camera.position.set(500, 800, 1300);
+		this.camera.lookAt(0, 0, 0);
+		//Scene
+		this.scene.background = new THREE.Color(0xf0f0f0f);
+
+		//Stats
+		this.stats = Stats();
+		document.body.appendChild(this.stats.dom);
+
+		// lights
+		const ambientLight = new THREE.AmbientLight(0x606060);
+		this.scene.add(ambientLight);
+
+		const directionalLight = new THREE.DirectionalLight(0xffffff);
+		directionalLight.position.set(1, 0.75, 0.5).normalize();
+		this.scene.add(directionalLight);
+
+		//Renderer
+		this.renderer.setPixelRatio(window.devicePixelRatio);
+		this.renderer.setSize(
+			this.container.getBoundingClientRect().width,
+			this.container.getBoundingClientRect().height
+		);
+		this.renderer.domElement.id = 'main-canvas';
+		this.container.appendChild(this.renderer.domElement);
+		this.setUpGrid();
+		this.render();
+
+		requestAnimationFrame(this.render.bind(this));
+
+		//events
+		window.addEventListener('resize', this.onWindowResize.bind(this));
+		window.addEventListener('mousemove', this.onMouseMove.bind(this));
+		window.addEventListener('mousedown', this.onMouseDown.bind(this));
+		window.addEventListener('mouseup', this.onMouseUp.bind(this));
+
+		this.initalized = true;
+	}
+
+	onWindowResize() {
+		this.camera.aspect =
+			this.container.getBoundingClientRect().width / this.container.getBoundingClientRect().height;
+		this.camera.updateProjectionMatrix();
+
+		this.renderer.setSize(
+			this.container.getBoundingClientRect().width,
+			this.container.getBoundingClientRect().height
+		);
+		this.render();
+	}
+	onMouseMove(event: MouseEvent) {
+		this.mouse.set(
+			(event.clientX / window.innerWidth) * 2 - 1,
+			-(event.clientY / window.innerHeight) * 2 + 1
+		);
+
+		this.raycaster.setFromCamera(this.mouse.clone(), this.camera);
+
+		const intersects = this.raycaster.intersectObjects(this.objects, false);
+		if (intersects.length > 0) {
+			if (this.isMouseDown) {
+				this.addCube();
+			} else {
+				const intersect = intersects[0];
+
+				this.rollOverMesh.position.copy(intersect.point).add(intersect.face!.normal);
+				this.rollOverMesh.setPositon();
+				// this.render();
+			}
+		}
+	}
+
+	onMouseDown(event: MouseEvent) {
+		this.isMouseDown = true;
+		this.mouse.set(
+			(event.clientX / window.innerWidth) * 2 - 1,
+			-(event.clientY / window.innerHeight) * 2 + 1
+		);
+	}
+
+	onMouseUp(event: MouseEvent) {
+		this.isMouseDown = false;
+		this.mouse.set(
+			(event.clientX / window.innerWidth) * 2 - 1,
+			-(event.clientY / window.innerHeight) * 2 + 1
+		);
+	}
+
+	addCube() {
+		this.raycaster.setFromCamera(this.mouse.clone(), this.camera);
+
+		const intersects = this.raycaster.intersectObjects(this.objects, false);
+
+		if (intersects.length > 0 && intersects.length < 2) {
+			console.log(intersects);
+
+			const [intersect] = intersects;
+			const geometry = new THREE.BoxGeometry(
+				this.rollOverMesh.size,
+				this.rollOverMesh.size,
+				this.rollOverMesh.size
+			);
+			const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+			const cube = new CubeMesh(this, material, this.gridSettings.size / this.gridSettings.divison);
+			cube.position.copy(intersect.point).add(intersect.face!.normal);
+			cube.setPositon();
+			this.scene.add(cube);
+			this.objects.push(cube);
+		}
+	}
+
+	setUpGrid() {
+		const geometry = new THREE.PlaneGeometry(this.gridSettings.size, this.gridSettings.size);
+		geometry.rotateX(-Math.PI / 2);
+
+		const plane = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ visible: false }));
+		this.scene.add(plane);
+
+		this.objects.push(plane);
+
+		const rollOverMaterial = new THREE.MeshBasicMaterial({
+			color: 0xff0000,
+			opacity: 0.5,
+			transparent: true
+		});
+		this.rollOverMesh = new CubeMesh(
+			this,
+			rollOverMaterial,
+			this.gridSettings.size / this.gridSettings.divison
+		).add();
+		const gridHelper = new THREE.GridHelper(this.gridSettings.size, this.gridSettings.divison);
+		this.scene.add(gridHelper);
+	}
+
+	render() {
+		this.renderer.render(this.scene, this.camera);
+		this.stats.update();
+		setTimeout(() => {
+			requestAnimationFrame(this.render.bind(this));
+		}, 1000 / 60);
+	}
+}
