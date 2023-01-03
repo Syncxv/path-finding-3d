@@ -19,7 +19,7 @@ export class SimpleSquare {
 	isHidden: boolean;
 	visited: boolean;
 	shouldAddToGrid: boolean;
-	prevSquare: CubeMesh | null;
+	prevSquare: SimpleSquare | null;
 	constructor(
 		i: number,
 		j: number,
@@ -61,6 +61,8 @@ export class CubeMesh extends THREE.Mesh {
 	distance = Infinity;
 	visited = false;
 	prevSquare?: CubeMesh | SimpleSquare;
+
+	options: CubeProps;
 	constructor(
 		instance: PathVisualzer,
 		material: THREE.Material,
@@ -81,6 +83,7 @@ export class CubeMesh extends THREE.Mesh {
 		this.isStart = options.isStart;
 		this.isHidden = options.isHidden;
 		this.shouldAddToGrid = options.shouldAddToGrid;
+		this.options = options;
 		this.squareSize = size;
 		this._geometry = geometry;
 		this.type = 'CubeMesh';
@@ -107,7 +110,7 @@ export class CubeMesh extends THREE.Mesh {
 		this.instance.objects.push(this);
 		if (this.shouldAddToGrid) {
 			let [i, j] = this.getIndex();
-			this.instance.grid[i][j] = this;
+			this.instance.grid[i][j] = this.toSimpleSquare();
 		}
 		return this;
 	}
@@ -123,9 +126,14 @@ export class CubeMesh extends THREE.Mesh {
 		console.log(`The row and column of the square are: (${row}, ${column})`);
 		return [column, row];
 	}
+
+	toSimpleSquare() {
+		let [i, j] = this.getIndex();
+		return new SimpleSquare(i, j, this.options);
+	}
 }
 
-export type Grid = (CubeMesh | SimpleSquare)[][];
+export type Grid = SimpleSquare[][];
 
 export class PathVisualzer {
 	camera: THREE.PerspectiveCamera;
@@ -145,7 +153,7 @@ export class PathVisualzer {
 	isShiftDown = false;
 
 	gridSettings = {
-		size: 2000,
+		size: 500,
 		division: 40,
 		get squareSize() {
 			return this.size / this.division;
@@ -310,7 +318,7 @@ export class PathVisualzer {
 			this.objects.push(cube);
 			let [i, j] = cube.getIndex();
 			console.log(this.grid[i][j]);
-			if (this.grid[i][j] instanceof SimpleSquare) this.grid[i][j] = cube;
+			if (this.grid[i][j] instanceof SimpleSquare) this.grid[i][j] = cube.toSimpleSquare();
 		}
 	}
 

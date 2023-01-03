@@ -28,8 +28,8 @@
 	function onClick() {
 		let res = dijstra(
 			instance.grid,
-			instance.grid.flat().find((s) => s.isStart) as CubeMesh,
-			instance.grid.flat().find((s) => s.isTarget) as CubeMesh
+			instance.grid.flat().find((s) => s.isStart)!,
+			instance.grid.flat().find((s) => s.isTarget)!
 		);
 		console.log(res);
 	}
