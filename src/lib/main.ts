@@ -86,6 +86,9 @@ export class CubeMesh extends THREE.Mesh {
 
 	add() {
 		this.instance.scene.add(this);
+		this.instance.objects.push(this);
+		let [i, j] = this.getIndex();
+		this.instance.grid[i][j] = this;
 		return this;
 	}
 
@@ -275,6 +278,7 @@ export class PathVisualzer {
 
 		if (intersects.length > 0 && !(intersects.length > 1)) {
 			const [intersect] = intersects;
+			console.log(intersect);
 			const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
 			const cube = new CubeMesh(this, material, this.gridSettings.squareSize);
 			cube.position.copy(intersect.point).add(intersect.face!.normal);
@@ -314,18 +318,32 @@ export class PathVisualzer {
 	setUpGrid() {
 		const geometry = new THREE.PlaneGeometry(this.gridSettings.size, this.gridSettings.size);
 		geometry.rotateX(-Math.PI / 2);
-
 		const plane = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ visible: false }));
 		this.scene.add(plane);
-
 		this.objects.push(plane);
 
+		//RollOverThingy
 		const rollOverMaterial = new THREE.MeshBasicMaterial({
 			color: 0xff0000,
 			opacity: 0.5,
 			transparent: true
 		});
 		this.rollOverMesh = new CubeMesh(this, rollOverMaterial, this.gridSettings.squareSize).add();
+
+		//Target Cube
+		const cubeMat = new THREE.MeshBasicMaterial({
+			color: 0x00ff00
+		});
+		const cube = new CubeMesh(this, cubeMat, this.gridSettings.squareSize, {
+			isTarget: true,
+			isHidden: false,
+			isStart: false,
+			isWall: false
+		});
+		cube.position.set(this.gridSettings.size / 4, 0, 0);
+		cube.setPositon();
+		cube.add();
+		//Add Grid Helper
 		const gridHelper = new THREE.GridHelper(this.gridSettings.size, this.gridSettings.division);
 		this.scene.add(gridHelper);
 	}
