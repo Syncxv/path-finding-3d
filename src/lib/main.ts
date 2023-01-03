@@ -7,6 +7,7 @@ export interface CubeProps {
 	isTarget: boolean;
 	isStart: boolean;
 	isHidden: boolean;
+	shouldAddToGrid: boolean;
 }
 export class SimpleSquare {
 	i: number;
@@ -17,11 +18,18 @@ export class SimpleSquare {
 	isWall: boolean;
 	isHidden: boolean;
 	visited: boolean;
+	shouldAddToGrid: boolean;
 	prevSquare: CubeMesh | null;
 	constructor(
 		i: number,
 		j: number,
-		options: CubeProps = { isWall: false, isStart: false, isTarget: false, isHidden: true }
+		options: CubeProps = {
+			isWall: false,
+			isStart: false,
+			isTarget: false,
+			isHidden: true,
+			shouldAddToGrid: true
+		}
 	) {
 		this.i = i;
 		this.j = j;
@@ -29,6 +37,7 @@ export class SimpleSquare {
 		this.isStart = options.isStart;
 		this.isTarget = options.isTarget;
 		this.isWall = options.isWall;
+		this.shouldAddToGrid = options.shouldAddToGrid;
 		this.isHidden = false;
 		this.visited = false;
 		this.prevSquare = null;
@@ -47,6 +56,8 @@ export class CubeMesh extends THREE.Mesh {
 	isTarget: boolean;
 	isStart: boolean;
 	isHidden: boolean;
+
+	shouldAddToGrid: boolean;
 	distance = Infinity;
 	visited = false;
 	prevSquare?: CubeMesh | SimpleSquare;
@@ -54,7 +65,13 @@ export class CubeMesh extends THREE.Mesh {
 		instance: PathVisualzer,
 		material: THREE.Material,
 		size: number,
-		options: CubeProps = { isWall: false, isStart: false, isTarget: false, isHidden: true }
+		options: CubeProps = {
+			isWall: false,
+			isStart: false,
+			isTarget: false,
+			isHidden: true,
+			shouldAddToGrid: true
+		}
 	) {
 		const geometry = new THREE.BoxGeometry(size, size, size);
 		super(geometry, material);
@@ -63,6 +80,7 @@ export class CubeMesh extends THREE.Mesh {
 		this.isTarget = options.isTarget;
 		this.isStart = options.isStart;
 		this.isHidden = options.isHidden;
+		this.shouldAddToGrid = options.shouldAddToGrid;
 		this.squareSize = size;
 		this._geometry = geometry;
 		this.type = 'CubeMesh';
@@ -87,8 +105,10 @@ export class CubeMesh extends THREE.Mesh {
 	add() {
 		this.instance.scene.add(this);
 		this.instance.objects.push(this);
-		let [i, j] = this.getIndex();
-		this.instance.grid[i][j] = this;
+		if (this.shouldAddToGrid) {
+			let [i, j] = this.getIndex();
+			this.instance.grid[i][j] = this;
+		}
 		return this;
 	}
 
@@ -211,7 +231,7 @@ export class PathVisualzer {
 			this.container.getBoundingClientRect().width,
 			this.container.getBoundingClientRect().height
 		);
-		this.render();
+		// this.render();
 	}
 	onMouseMove(event: MouseEvent) {
 		this.mouse.set(
@@ -219,16 +239,19 @@ export class PathVisualzer {
 			-(event.clientY / window.innerHeight) * 2 + 1
 		);
 
-		this.raycaster.setFromCamera(this.mouse.clone(), this.camera);
+		this.raycaster.setFromCamera(this.mouse, this.camera);
 
 		const intersects = this.raycaster.intersectObjects(this.objects, false);
 		if (intersects.length > 0) {
+			const intersect = intersects[0];
+			// console.log(intersect.point, intersect.face?.normal);
+			this.rollOverMesh.position.set(intersect.point.x + 1, 0, intersect.point.z - 1);
+			this.rollOverMesh.setPositon();
 			if (this.isMouseDown && this.isShiftDown) {
 				this.removeCube();
 			} else if (this.isMouseDown) {
 				this.addCube();
 			}
-			this.moveRollOverThingy(intersects);
 		}
 	}
 
@@ -238,7 +261,7 @@ export class PathVisualzer {
 			(event.clientX / window.innerWidth) * 2 - 1,
 			-(event.clientY / window.innerHeight) * 2 + 1
 		);
-		this.raycaster.setFromCamera(this.mouse.clone(), this.camera);
+		this.raycaster.setFromCamera(this.mouse, this.camera);
 
 		const intersects = this.raycaster.intersectObjects(this.objects, false);
 		if (intersects.length > 0) {
@@ -276,7 +299,7 @@ export class PathVisualzer {
 
 		const intersects = this.raycaster.intersectObjects(this.objects, false);
 
-		if (intersects.length > 0 && !(intersects.length > 1)) {
+		if (intersects.length > 0 && intersects.length < 2) {
 			const [intersect] = intersects;
 			console.log(intersect);
 			const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
@@ -286,7 +309,8 @@ export class PathVisualzer {
 			this.scene.add(cube);
 			this.objects.push(cube);
 			let [i, j] = cube.getIndex();
-			if (typeof this.grid[i][j] === 'string') this.grid[i][j] = cube;
+			console.log(this.grid[i][j]);
+			if (this.grid[i][j] instanceof SimpleSquare) this.grid[i][j] = cube;
 		}
 	}
 
@@ -328,21 +352,43 @@ export class PathVisualzer {
 			opacity: 0.5,
 			transparent: true
 		});
-		this.rollOverMesh = new CubeMesh(this, rollOverMaterial, this.gridSettings.squareSize).add();
+		this.rollOverMesh = new CubeMesh(this, rollOverMaterial, this.gridSettings.squareSize, {
+			shouldAddToGrid: false,
+			isHidden: true,
+			isStart: false,
+			isTarget: false,
+			isWall: false
+		}).add();
 
 		//Target Cube
-		const cubeMat = new THREE.MeshBasicMaterial({
-			color: 0x00ff00
+		const targetCubeMat = new THREE.MeshBasicMaterial({
+			color: 0x0000ff
 		});
-		const cube = new CubeMesh(this, cubeMat, this.gridSettings.squareSize, {
+		const targetCube = new CubeMesh(this, targetCubeMat, this.gridSettings.squareSize, {
 			isTarget: true,
 			isHidden: false,
 			isStart: false,
-			isWall: false
+			isWall: false,
+			shouldAddToGrid: true
 		});
-		cube.position.set(this.gridSettings.size / 4, 0, 0);
-		cube.setPositon();
-		cube.add();
+		targetCube.position.set(this.gridSettings.size / 4, 0, 0);
+		targetCube.setPositon();
+		targetCube.add();
+
+		const startCubeMat = new THREE.MeshBasicMaterial({
+			color: 0xff00000
+		});
+		const startCube = new CubeMesh(this, startCubeMat, this.gridSettings.squareSize, {
+			isTarget: false,
+			isHidden: false,
+			isStart: true,
+			isWall: false,
+			shouldAddToGrid: true
+		});
+		startCube.position.set(-this.gridSettings.size / 4, 0, 0);
+		startCube.setPositon();
+		startCube.add();
+
 		//Add Grid Helper
 		const gridHelper = new THREE.GridHelper(this.gridSettings.size, this.gridSettings.division);
 		this.scene.add(gridHelper);

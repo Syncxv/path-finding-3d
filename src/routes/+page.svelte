@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onDestroy, onMount } from 'svelte';
-	import { PathVisualzer } from '../lib/main';
+	import { CubeMesh, PathVisualzer } from '../lib/main';
 	import * as THREE from 'three';
 	import { browser } from '$app/environment';
 	import { dijstra } from '../lib/algorithems/dijkstra';
@@ -24,6 +24,15 @@
 	const onBruh = (e: Event) => {
 		instance.camera.position.z = parseInt((e.target as HTMLInputElement).value);
 	};
+
+	function onClick() {
+		let res = dijstra(
+			instance.grid,
+			instance.grid.flat().find((s) => s.isStart) as CubeMesh,
+			instance.grid.flat().find((s) => s.isTarget) as CubeMesh
+		);
+		console.log(res);
+	}
 </script>
 
 <main>
@@ -42,11 +51,7 @@
 					id="myRange"
 				/>
 			</div>
-			<button on:click={() => {
-				// dijstra(instance.grid, )
-			}}>
-				Run
-			</button>
+			<button on:click={onClick}> Run </button>
 		{/if}
 	</nav>
 
