@@ -6,6 +6,37 @@ export interface CubeProps {
 	isWall: boolean;
 	isTarget: boolean;
 	isStart: boolean;
+	isHidden: boolean;
+}
+export class SimpleSquare {
+	i: number;
+	j: number;
+	distance: number;
+	isStart: boolean;
+	isTarget: boolean;
+	isWall: boolean;
+	isHidden: boolean;
+	visited: boolean;
+	prevSquare: CubeMesh | null;
+	constructor(
+		i: number,
+		j: number,
+		options: CubeProps = { isWall: false, isStart: false, isTarget: false, isHidden: true }
+	) {
+		this.i = i;
+		this.j = j;
+		this.distance = Infinity;
+		this.isStart = options.isStart;
+		this.isTarget = options.isTarget;
+		this.isWall = options.isWall;
+		this.isHidden = false;
+		this.visited = false;
+		this.prevSquare = null;
+	}
+
+	getIndex() {
+		return [this.i, this.j];
+	}
 }
 
 export class CubeMesh extends THREE.Mesh {
@@ -15,12 +46,15 @@ export class CubeMesh extends THREE.Mesh {
 	isWall: boolean;
 	isTarget: boolean;
 	isStart: boolean;
+	isHidden: boolean;
 	distance = Infinity;
+	visited = false;
+	prevSquare?: CubeMesh;
 	constructor(
 		instance: PathVisualzer,
 		material: THREE.Material,
 		size: number,
-		options: CubeProps = { isWall: false, isStart: false, isTarget: false }
+		options: CubeProps = { isWall: false, isStart: false, isTarget: false, isHidden: true }
 	) {
 		const geometry = new THREE.BoxGeometry(size, size, size);
 		super(geometry, material);
@@ -28,6 +62,7 @@ export class CubeMesh extends THREE.Mesh {
 		this.isWall = options.isWall;
 		this.isTarget = options.isTarget;
 		this.isStart = options.isStart;
+		this.isHidden = options.isHidden;
 		this.squareSize = size;
 		this._geometry = geometry;
 		this.type = 'CubeMesh';
@@ -91,7 +126,7 @@ export class PathVisualzer {
 			return this.size / this.division;
 		}
 	};
-	grid: (CubeMesh | string)[][];
+	grid: (CubeMesh | SimpleSquare)[][];
 	constructor(container: HTMLDivElement) {
 		this.container = container;
 		this.raycaster = new THREE.Raycaster();
@@ -115,7 +150,7 @@ export class PathVisualzer {
 		for (let i = 0; i < this.gridSettings.size; ++i) {
 			let currRow = [];
 			for (let j = 0; j < this.gridSettings.size; ++j) {
-				currRow.push(`${i}, ${j}`);
+				currRow.push(new SimpleSquare(i, j));
 			}
 			this.grid.push(currRow);
 		}
@@ -262,7 +297,7 @@ export class PathVisualzer {
 
 				this.scene.remove(cube);
 				this.objects.splice(this.objects.indexOf(intersect.object), 1);
-				this.grid[i][j] = `${i}, ${j}`;
+				this.grid[i][j] = new SimpleSquare(i, j);
 			}
 		}
 	}
