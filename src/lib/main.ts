@@ -30,6 +30,7 @@ export class CubeMesh extends THREE.Mesh {
 		this.isStart = options.isStart;
 		this.squareSize = size;
 		this._geometry = geometry;
+		this.type = 'CubeMesh';
 	}
 	setSize(size: number) {
 		this._geometry.dispose();
@@ -81,6 +82,7 @@ export class PathVisualzer {
 
 	initalized = false;
 	isMouseDown = false;
+	isShiftDown = false;
 
 	gridSettings = {
 		size: 2000,
@@ -89,7 +91,7 @@ export class PathVisualzer {
 			return this.size / this.division;
 		}
 	};
-	grid: any[][];
+	grid: (CubeMesh | string)[][];
 	constructor(container: HTMLDivElement) {
 		this.container = container;
 		this.raycaster = new THREE.Raycaster();
@@ -181,6 +183,8 @@ export class PathVisualzer {
 		if (intersects.length > 0) {
 			if (this.isMouseDown) {
 				this.addCube();
+			} else if (this.isShiftDown) {
+				this.removeCube();
 			} else {
 				const intersect = intersects[0];
 
@@ -194,6 +198,7 @@ export class PathVisualzer {
 	onMouseDown(event: MouseEvent) {
 		console.log(event.button);
 		this.isMouseDown = event.button === 0;
+		this.isShiftDown = event.shiftKey;
 		this.mouse.set(
 			(event.clientX / window.innerWidth) * 2 - 1,
 			-(event.clientY / window.innerHeight) * 2 + 1
@@ -202,12 +207,14 @@ export class PathVisualzer {
 
 		const intersects = this.raycaster.intersectObjects(this.objects, false);
 		if (intersects.length > 0) {
-			if (this.isMouseDown) this.addCube();
+			if (this.isShiftDown) this.removeCube();
+			else if (this.isMouseDown) this.addCube();
 		}
 	}
 
 	onMouseUp(event: MouseEvent) {
 		this.isMouseDown = false;
+		this.isShiftDown = event.shiftKey;
 		this.mouse.set(
 			(event.clientX / window.innerWidth) * 2 - 1,
 			-(event.clientY / window.innerHeight) * 2 + 1
@@ -230,6 +237,24 @@ export class PathVisualzer {
 			let [i, j] = cube.getIndex();
 
 			this.grid[i][j] = cube;
+		}
+	}
+
+	removeCube() {
+		this.raycaster.setFromCamera(this.mouse.clone(), this.camera);
+
+		const intersects = this.raycaster.intersectObjects(this.objects, false);
+
+		const [intersect] = intersects;
+		if ((intersect.object.type = 'CubeMesh')) {
+			const cube = intersect.object as CubeMesh;
+			if (typeof cube.getIndex === 'function') {
+				let [i, j] = cube.getIndex();
+
+				this.scene.remove(cube);
+				this.objects.splice(this.objects.indexOf(intersect.object), 1);
+				this.grid[i][j] = `${i}, ${j}`;
+			}
 		}
 	}
 
