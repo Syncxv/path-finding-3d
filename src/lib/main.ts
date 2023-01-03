@@ -187,13 +187,8 @@ export class PathVisualzer {
 				this.removeCube();
 			} else if (this.isMouseDown) {
 				this.addCube();
-			} else {
-				const intersect = intersects[0];
-
-				this.rollOverMesh.position.copy(intersect.point).add(intersect.face!.normal);
-				this.rollOverMesh.setPositon();
-				// this.render();
 			}
+			this.moveRollOverThingy(intersects);
 		}
 	}
 
@@ -270,6 +265,13 @@ export class PathVisualzer {
 				this.grid[i][j] = `${i}, ${j}`;
 			}
 		}
+	}
+
+	moveRollOverThingy(intersects: THREE.Intersection<THREE.Object3D<THREE.Event>>[]) {
+		const intersect = intersects[0];
+
+		this.rollOverMesh.position.copy(intersect.point).add(intersect.face!.normal);
+		this.rollOverMesh.setPositon();
 	}
 
 	setUpGrid() {
