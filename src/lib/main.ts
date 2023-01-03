@@ -84,7 +84,10 @@ export class PathVisualzer {
 
 	gridSettings = {
 		size: 2000,
-		division: 40
+		division: 40,
+		get squareSize() {
+			return this.size / this.division;
+		}
 	};
 	grid: any[][];
 	constructor(container: HTMLDivElement) {
@@ -189,11 +192,18 @@ export class PathVisualzer {
 	}
 
 	onMouseDown(event: MouseEvent) {
-		this.isMouseDown = true;
+		console.log(event.button);
+		this.isMouseDown = event.button === 0;
 		this.mouse.set(
 			(event.clientX / window.innerWidth) * 2 - 1,
 			-(event.clientY / window.innerHeight) * 2 + 1
 		);
+		this.raycaster.setFromCamera(this.mouse.clone(), this.camera);
+
+		const intersects = this.raycaster.intersectObjects(this.objects, false);
+		if (intersects.length > 0) {
+			if (this.isMouseDown) this.addCube();
+		}
 	}
 
 	onMouseUp(event: MouseEvent) {
@@ -212,11 +222,7 @@ export class PathVisualzer {
 		if (intersects.length > 0 && intersects.length < 2) {
 			const [intersect] = intersects;
 			const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-			const cube = new CubeMesh(
-				this,
-				material,
-				this.gridSettings.size / this.gridSettings.division
-			);
+			const cube = new CubeMesh(this, material, this.gridSettings.squareSize);
 			cube.position.copy(intersect.point).add(intersect.face!.normal);
 			cube.setPositon();
 			this.scene.add(cube);
@@ -241,11 +247,7 @@ export class PathVisualzer {
 			opacity: 0.5,
 			transparent: true
 		});
-		this.rollOverMesh = new CubeMesh(
-			this,
-			rollOverMaterial,
-			this.gridSettings.size / this.gridSettings.division
-		).add();
+		this.rollOverMesh = new CubeMesh(this, rollOverMaterial, this.gridSettings.squareSize).add();
 		const gridHelper = new THREE.GridHelper(this.gridSettings.size, this.gridSettings.division);
 		this.scene.add(gridHelper);
 	}
