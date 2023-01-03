@@ -154,7 +154,7 @@ export class PathVisualzer {
 
 	gridSettings = {
 		size: 500,
-		division: 40,
+		division: 20,
 		get squareSize() {
 			return this.size / this.division;
 		}
