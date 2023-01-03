@@ -241,7 +241,7 @@ export class PathVisualzer {
 
 		const intersects = this.raycaster.intersectObjects(this.objects, false);
 
-		if (intersects.length > 0 && intersects.length < 2) {
+		if (intersects.length > 0 && !(intersects.length > 1)) {
 			const [intersect] = intersects;
 			const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
 			const cube = new CubeMesh(this, material, this.gridSettings.squareSize);
@@ -250,8 +250,7 @@ export class PathVisualzer {
 			this.scene.add(cube);
 			this.objects.push(cube);
 			let [i, j] = cube.getIndex();
-
-			this.grid[i][j] = cube;
+			if (typeof this.grid[i][j] === 'string') this.grid[i][j] = cube;
 		}
 	}
 
