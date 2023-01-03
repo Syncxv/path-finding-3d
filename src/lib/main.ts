@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-// import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import Stats from 'three/examples/jsm/libs/stats.module';
 
 export class CubeMesh extends THREE.Mesh {
@@ -40,7 +40,7 @@ export class PathVisualzer {
 	camera: THREE.PerspectiveCamera;
 	scene: THREE.Scene;
 	stats!: Stats;
-	// controls?: OrbitControls;
+	controls?: OrbitControls;
 	renderer: THREE.WebGLRenderer;
 	container: HTMLDivElement;
 	raycaster: THREE.Raycaster;
@@ -53,7 +53,7 @@ export class PathVisualzer {
 	isMouseDown = false;
 
 	gridSettings = {
-		size: 5000,
+		size: 2000,
 		divison: 40
 	};
 	grid: any[][];
@@ -67,16 +67,19 @@ export class PathVisualzer {
 			45,
 			window.innerWidth / window.innerHeight,
 			1,
-			1000000
+			100000
 		);
 		this.renderer = new THREE.WebGLRenderer({ antialias: true });
 		this.scene = new THREE.Scene();
-		// this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-
+		this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+		this.controls.mouseButtons = {
+			MIDDLE: THREE.MOUSE.MIDDLE,
+			RIGHT: THREE.MOUSE.LEFT
+		};
 		this.grid = [];
-		for (let i = 0; i < this.gridSettings.size - 1; ++i) {
+		for (let i = 0; i < this.gridSettings.size; ++i) {
 			let currRow = [];
-			for (let j = 0; j < this.gridSettings.size - 1; ++j) {
+			for (let j = 0; j < this.gridSettings.size; ++j) {
 				currRow.push(`${i}, ${j}`);
 			}
 			this.grid.push(currRow);
@@ -179,14 +182,7 @@ export class PathVisualzer {
 		const intersects = this.raycaster.intersectObjects(this.objects, false);
 
 		if (intersects.length > 0 && intersects.length < 2) {
-			console.log(intersects);
-
 			const [intersect] = intersects;
-			const geometry = new THREE.BoxGeometry(
-				this.rollOverMesh.size,
-				this.rollOverMesh.size,
-				this.rollOverMesh.size
-			);
 			const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
 			const cube = new CubeMesh(this, material, this.gridSettings.size / this.gridSettings.divison);
 			cube.position.copy(intersect.point).add(intersect.face!.normal);
@@ -228,20 +224,25 @@ export class PathVisualzer {
 	}
 
 	dispose() {
-		this.scene.traverse((obj: any) => {
-			if (obj.geometry) {
-				obj.geometry.dispose();
-			}
-			if (obj.material) {
-				if (obj.material.length) {
-					for (let i = 0; i < obj.material.length; ++i) {
-						obj.material[i].dispose();
-					}
-				} else {
-					obj.material.dispose();
+		try {
+			this.scene.traverse((obj: any) => {
+				if (obj.geometry) {
+					obj.geometry.dispose();
 				}
-			}
-		});
-		this.renderer.dispose();
+				if (obj.material) {
+					if (obj.material.length) {
+						for (let i = 0; i < obj.material.length; ++i) {
+							obj.material[i].dispose();
+						}
+					} else {
+						obj.material.dispose();
+					}
+				}
+			});
+			this.renderer.dispose();
+		} catch (err) {
+			console.error(err);
+			debugger;
+		}
 	}
 }
