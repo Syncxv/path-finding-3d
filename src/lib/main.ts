@@ -5,11 +5,11 @@ import Stats from 'three/examples/jsm/libs/stats.module';
 export class CubeMesh extends THREE.Mesh {
 	instance: PathVisualzer;
 	_geometry: THREE.BoxGeometry;
-	size: number;
+	squareSize: number;
 	constructor(instance: PathVisualzer, material: THREE.Material, size: number) {
 		const geometry = new THREE.BoxGeometry(size, size, size);
 		super(geometry, material);
-		this.size = size;
+		this.squareSize = size;
 		this._geometry = geometry;
 		this.instance = instance;
 	}
@@ -22,10 +22,10 @@ export class CubeMesh extends THREE.Mesh {
 
 	setPositon() {
 		this.position
-			.divideScalar(this.size)
+			.divideScalar(this.squareSize)
 			.floor()
-			.multiplyScalar(this.size)
-			.addScalar(this.size / 2);
+			.multiplyScalar(this.squareSize)
+			.addScalar(this.squareSize / 2);
 
 		return this;
 	}
@@ -33,6 +33,18 @@ export class CubeMesh extends THREE.Mesh {
 	add() {
 		this.instance.scene.add(this);
 		return this;
+	}
+
+	getIndex() {
+		const { size } = this.instance.gridSettings;
+		const { x, z: y } = this.position;
+
+		let column = Math.floor((x + size / 2) / this.squareSize);
+
+		// Calculate the row of the square
+		let row = Math.floor((y + size / 2) / this.squareSize);
+		console.log(`The row and column of the square are: (${row}, ${column})`);
+		return [column, row];
 	}
 }
 
@@ -54,7 +66,7 @@ export class PathVisualzer {
 
 	gridSettings = {
 		size: 2000,
-		divison: 40
+		division: 40
 	};
 	grid: any[][];
 	constructor(container: HTMLDivElement) {
@@ -184,11 +196,16 @@ export class PathVisualzer {
 		if (intersects.length > 0 && intersects.length < 2) {
 			const [intersect] = intersects;
 			const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-			const cube = new CubeMesh(this, material, this.gridSettings.size / this.gridSettings.divison);
+			const cube = new CubeMesh(
+				this,
+				material,
+				this.gridSettings.size / this.gridSettings.division
+			);
 			cube.position.copy(intersect.point).add(intersect.face!.normal);
 			cube.setPositon();
 			this.scene.add(cube);
 			this.objects.push(cube);
+			console.log(cube.getIndex());
 		}
 	}
 
@@ -209,9 +226,9 @@ export class PathVisualzer {
 		this.rollOverMesh = new CubeMesh(
 			this,
 			rollOverMaterial,
-			this.gridSettings.size / this.gridSettings.divison
+			this.gridSettings.size / this.gridSettings.division
 		).add();
-		const gridHelper = new THREE.GridHelper(this.gridSettings.size, this.gridSettings.divison);
+		const gridHelper = new THREE.GridHelper(this.gridSettings.size, this.gridSettings.division);
 		this.scene.add(gridHelper);
 	}
 
