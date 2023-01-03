@@ -49,7 +49,7 @@ export class CubeMesh extends THREE.Mesh {
 	isHidden: boolean;
 	distance = Infinity;
 	visited = false;
-	prevSquare?: CubeMesh;
+	prevSquare?: CubeMesh | SimpleSquare;
 	constructor(
 		instance: PathVisualzer,
 		material: THREE.Material,
@@ -102,6 +102,8 @@ export class CubeMesh extends THREE.Mesh {
 	}
 }
 
+export type Grid = (CubeMesh | SimpleSquare)[][];
+
 export class PathVisualzer {
 	camera: THREE.PerspectiveCamera;
 	scene: THREE.Scene;
@@ -126,7 +128,7 @@ export class PathVisualzer {
 			return this.size / this.division;
 		}
 	};
-	grid: (CubeMesh | SimpleSquare)[][];
+	grid: Grid;
 	constructor(container: HTMLDivElement) {
 		this.container = container;
 		this.raycaster = new THREE.Raycaster();

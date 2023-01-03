@@ -1,6 +1,6 @@
-import type { CubeMesh } from '../main';
+import type { CubeMesh, Grid, SimpleSquare } from '../main';
 
-export const dijstra = (grid: CubeMesh[][], start: CubeMesh, target: CubeMesh) => {
+export const dijstra = (grid: Grid, start: CubeMesh, target: CubeMesh) => {
 	const squares = [...grid.flat()];
 	const unvisitedSquares = [...grid.flat()];
 	const visitedInOrder = [];
@@ -20,7 +20,7 @@ export const dijstra = (grid: CubeMesh[][], start: CubeMesh, target: CubeMesh) =
 	}
 };
 
-export function findShortestPath(grid: CubeMesh[][] | CubeMesh[], target: CubeMesh) {
+export function findShortestPath(grid: Grid | CubeMesh[], target: CubeMesh | SimpleSquare) {
 	const shortestNodes = [];
 	let currNode = target;
 	while (currNode !== null) {
@@ -30,15 +30,15 @@ export function findShortestPath(grid: CubeMesh[][] | CubeMesh[], target: CubeMe
 	return shortestNodes;
 }
 
-function updateNearbyNodes(square: CubeMesh, gridy: CubeMesh[][]) {
+function updateNearbyNodes(square: CubeMesh | SimpleSquare, gridy: Grid) {
 	const nearSquares = getNearestUnvisitedNodes(square, gridy);
 	nearSquares.forEach((nearNode) => {
 		nearNode.distance = square.distance + 1;
 		nearNode.prevSquare = square;
 	});
 }
-function getNearestUnvisitedNodes(square: CubeMesh, gridy: CubeMesh[][]) {
-	const res: CubeMesh[] = [];
+function getNearestUnvisitedNodes(square: CubeMesh | SimpleSquare, gridy: Grid) {
+	const res: (CubeMesh | SimpleSquare)[] = [];
 	const [i, j] = square.getIndex();
 	if (gridy[i + 1]) res.push(gridy[i + 1][j]);
 	if (gridy[i - 1]) res.push(gridy[i - 1][j]);
@@ -47,6 +47,6 @@ function getNearestUnvisitedNodes(square: CubeMesh, gridy: CubeMesh[][]) {
 	return res.filter((s) => !s.visited);
 }
 
-function sortByDistance(unvisitedNodes: CubeMesh[]) {
+function sortByDistance(unvisitedNodes: (CubeMesh | SimpleSquare)[]) {
 	return unvisitedNodes.sort((a, b) => a.distance - b.distance);
 }

@@ -3,6 +3,7 @@
 	import { PathVisualzer } from '../lib/main';
 	import * as THREE from 'three';
 	import { browser } from '$app/environment';
+	import { dijstra } from '../lib/algorithems/dijkstra';
 
 	let container!: HTMLDivElement;
 
@@ -41,6 +42,11 @@
 					id="myRange"
 				/>
 			</div>
+			<button on:click={() => {
+				// dijstra(instance.grid, )
+			}}>
+				Run
+			</button>
 		{/if}
 	</nav>
 
