@@ -1,7 +1,8 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import { PathVisualzer } from '../lib/main';
 	import * as THREE from 'three';
+	import { browser } from '$app/environment';
 
 	let container!: HTMLDivElement;
 
@@ -12,6 +13,16 @@
 		instance = (window as any).instance = new PathVisualzer(container);
 		instance.init();
 	});
+
+	onDestroy(() => {
+		if (browser) {
+			instance.dispose();
+		}
+	});
+
+	const onBruh = (e: Event) => {
+		instance.camera.position.z = parseInt((e.target as HTMLInputElement).value);
+	};
 </script>
 
 <main>
@@ -21,9 +32,10 @@
 		{:else}
 			<div class="camera-controls">
 				<input
+					on:input={onBruh}
 					type="range"
 					min="1"
-					max="100000"
+					max="9000"
 					value={instance.camera.position.z}
 					class="slider"
 					id="myRange"

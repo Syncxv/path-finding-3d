@@ -226,4 +226,22 @@ export class PathVisualzer {
 			requestAnimationFrame(this.render.bind(this));
 		}, 1000 / 60);
 	}
+
+	dispose() {
+		this.scene.traverse((obj: any) => {
+			if (obj.geometry) {
+				obj.geometry.dispose();
+			}
+			if (obj.material) {
+				if (obj.material.length) {
+					for (let i = 0; i < obj.material.length; ++i) {
+						obj.material[i].dispose();
+					}
+				} else {
+					obj.material.dispose();
+				}
+			}
+		});
+		this.renderer.dispose();
+	}
 }
