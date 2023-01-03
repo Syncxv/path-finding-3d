@@ -156,6 +156,8 @@ export class PathVisualzer {
 		window.addEventListener('mousemove', this.onMouseMove.bind(this));
 		window.addEventListener('mousedown', this.onMouseDown.bind(this));
 		window.addEventListener('mouseup', this.onMouseUp.bind(this));
+		document.addEventListener('keydown', this.onDocumentKeyDown.bind(this));
+		document.addEventListener('keyup', this.onDocumentKeyUp.bind(this));
 
 		this.initalized = true;
 	}
@@ -181,10 +183,10 @@ export class PathVisualzer {
 
 		const intersects = this.raycaster.intersectObjects(this.objects, false);
 		if (intersects.length > 0) {
-			if (this.isMouseDown) {
-				this.addCube();
-			} else if (this.isShiftDown) {
+			if (this.isMouseDown && this.isShiftDown) {
 				this.removeCube();
+			} else if (this.isMouseDown) {
+				this.addCube();
 			} else {
 				const intersect = intersects[0];
 
@@ -196,9 +198,7 @@ export class PathVisualzer {
 	}
 
 	onMouseDown(event: MouseEvent) {
-		console.log(event.button);
 		this.isMouseDown = event.button === 0;
-		this.isShiftDown = event.shiftKey;
 		this.mouse.set(
 			(event.clientX / window.innerWidth) * 2 - 1,
 			-(event.clientY / window.innerHeight) * 2 + 1
@@ -207,18 +207,33 @@ export class PathVisualzer {
 
 		const intersects = this.raycaster.intersectObjects(this.objects, false);
 		if (intersects.length > 0) {
-			if (this.isShiftDown) this.removeCube();
+			if (this.isShiftDown && this.isMouseDown) this.removeCube();
 			else if (this.isMouseDown) this.addCube();
 		}
 	}
 
 	onMouseUp(event: MouseEvent) {
 		this.isMouseDown = false;
-		this.isShiftDown = event.shiftKey;
 		this.mouse.set(
 			(event.clientX / window.innerWidth) * 2 - 1,
 			-(event.clientY / window.innerHeight) * 2 + 1
 		);
+	}
+
+	onDocumentKeyDown(event: KeyboardEvent) {
+		switch (event.key) {
+			case 'Shift':
+				this.isShiftDown = true;
+				break;
+		}
+	}
+
+	onDocumentKeyUp(event: KeyboardEvent) {
+		switch (event.key) {
+			case 'Shift':
+				this.isShiftDown = false;
+				break;
+		}
 	}
 
 	addCube() {
