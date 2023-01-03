@@ -2,16 +2,34 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import Stats from 'three/examples/jsm/libs/stats.module';
 
+export interface CubeProps {
+	isWall: boolean;
+	isTarget: boolean;
+	isStart: boolean;
+}
+
 export class CubeMesh extends THREE.Mesh {
 	instance: PathVisualzer;
 	_geometry: THREE.BoxGeometry;
 	squareSize: number;
-	constructor(instance: PathVisualzer, material: THREE.Material, size: number) {
+	isWall: boolean;
+	isTarget: boolean;
+	isStart: boolean;
+	distance = Infinity;
+	constructor(
+		instance: PathVisualzer,
+		material: THREE.Material,
+		size: number,
+		options: CubeProps = { isWall: false, isStart: false, isTarget: false }
+	) {
 		const geometry = new THREE.BoxGeometry(size, size, size);
 		super(geometry, material);
+		this.instance = instance;
+		this.isWall = options.isWall;
+		this.isTarget = options.isTarget;
+		this.isStart = options.isStart;
 		this.squareSize = size;
 		this._geometry = geometry;
-		this.instance = instance;
 	}
 	setSize(size: number) {
 		this._geometry.dispose();
@@ -128,8 +146,6 @@ export class PathVisualzer {
 		this.setUpGrid();
 		this.render();
 
-		requestAnimationFrame(this.render.bind(this));
-
 		//events
 		window.addEventListener('resize', this.onWindowResize.bind(this));
 		window.addEventListener('mousemove', this.onMouseMove.bind(this));
@@ -205,7 +221,9 @@ export class PathVisualzer {
 			cube.setPositon();
 			this.scene.add(cube);
 			this.objects.push(cube);
-			console.log(cube.getIndex());
+			let [i, j] = cube.getIndex();
+
+			this.grid[i][j] = cube;
 		}
 	}
 
@@ -235,9 +253,7 @@ export class PathVisualzer {
 	render() {
 		this.renderer.render(this.scene, this.camera);
 		this.stats.update();
-		setTimeout(() => {
-			requestAnimationFrame(this.render.bind(this));
-		}, 1000 / 60);
+		requestAnimationFrame(this.render.bind(this));
 	}
 
 	dispose() {
