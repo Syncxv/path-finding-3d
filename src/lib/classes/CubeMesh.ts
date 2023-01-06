@@ -78,7 +78,7 @@ export class CubeMesh extends THREE.Mesh {
 
 		// Calculate the row of the square
 		let row = Math.floor((y + size / 2) / this.squareSize);
-		console.log(`The row and column of the square are: (${row}, ${column})`);
+		// console.log(`The row and column of the square are: (${row}, ${column})`);
 		return [column, row];
 	}
 

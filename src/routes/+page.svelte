@@ -51,6 +51,12 @@
 		await animate(visited, 'visited');
 		await animate(shortest, 'shortest');
 	}
+
+	function reset() {
+		console.log(instance.grid.flat().filter((m) => m.cubeMesh).length);
+		instance.grid.flat().forEach((elem) => elem.removeCube());
+		console.log(instance.grid.flat().filter((m) => m.cubeMesh).length);
+	}
 </script>
 
 <main>
@@ -70,6 +76,7 @@
 				/>
 			</div>
 			<button on:click={onClick}> Run </button>
+			<button on:click={reset}> Reset </button>
 		{/if}
 	</nav>
 

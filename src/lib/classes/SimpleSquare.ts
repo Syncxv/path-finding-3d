@@ -4,7 +4,7 @@ import type { CubeProps } from '../types';
 import { CubeMesh } from './CubeMesh';
 
 export class SimpleSquare {
-	cubeMesh?: CubeMesh;
+	_cubeMesh?: CubeMesh | null;
 	instance: PathVisualzer;
 	i: number;
 	j: number;
@@ -40,7 +40,17 @@ export class SimpleSquare {
 		this.isHidden = false;
 		this.visited = false;
 		this.prevSquare = null;
-		this.cubeMesh = cubeMesh;
+		this._cubeMesh = cubeMesh;
+	}
+	get cubeMesh() {
+		return this._cubeMesh;
+	}
+
+	set cubeMesh(val: CubeMesh | null | undefined) {
+		if (val != null) {
+			this.removeCube();
+			this._cubeMesh = val;
+		} else this._cubeMesh = val;
 	}
 
 	getIndex() {
@@ -57,6 +67,7 @@ export class SimpleSquare {
 
 	createCube(type: 'shortest' | 'visited') {
 		if (this.isStart || this.isTarget) return;
+		if (this.cubeMesh) this.removeCube();
 		const material = new THREE.MeshBasicMaterial({
 			color: type === 'visited' ? 0x0356fc : 0xfff424
 		});
@@ -71,5 +82,12 @@ export class SimpleSquare {
 		cube.setPositon();
 		this.instance.scene.add(cube);
 		this.cubeMesh = cube;
+	}
+
+	removeCube() {
+		if (this.cubeMesh == null || this.isTarget || this.isStart) return;
+
+		this.instance.scene.remove(this.cubeMesh);
+		this.cubeMesh = null;
 	}
 }
