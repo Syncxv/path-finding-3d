@@ -210,15 +210,13 @@ export const flatten = (grid: Grid) => {
 };
 export const dijstra = (grid: Grid, start: SimpleSquare, target: SimpleSquare) => {
 	const squares = flatten(grid);
+	const unvisitedSquares = [...squares];
 	const visitedInOrder = [];
 	start.distance = 0;
 
-	const queue = new PriorityQueue<QueueItem>();
-	squares.forEach((square) => queue.add({ element: square, priority: square.distance }));
-
-	while (!queue.empty()) {
+	while (unvisitedSquares.length) {
 		sortByDistance(squares);
-		const closestNode = queue.poll()?.element;
+		const closestNode = squares.shift();
 		if (closestNode) {
 			if (closestNode.isWall) continue;
 			if (closestNode.distance === Infinity) return visitedInOrder;
@@ -230,7 +228,7 @@ export const dijstra = (grid: Grid, start: SimpleSquare, target: SimpleSquare) =
 	}
 };
 
-export function findShortestPath(grid: Grid | SimpleSquare[], target: SimpleSquare) {
+export function findShortestPath(target: SimpleSquare) {
 	const shortestNodes = [];
 	let currNode = target;
 	while (currNode !== null) {

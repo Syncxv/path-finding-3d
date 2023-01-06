@@ -28,13 +28,18 @@
 	function onClick() {
 		(window as any).algo = algo;
 		console.time('algo');
-		let res = algo.dijstra(
+		let visited = algo.dijstra(
 			instance.grid,
 			instance.grid.flat().find((s) => s.isStart)!,
 			instance.grid.flat().find((s) => s.isTarget)!
-		);
+		)!;
 		console.timeEnd('algo');
-		console.log(res);
+		console.log(visited);
+		for (let i = 0; i < visited.length; ++i) {
+			setTimeout(() => {
+				visited[i].createCube();
+			}, 4 * i);
+		}
 	}
 </script>
 

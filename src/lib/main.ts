@@ -10,6 +10,8 @@ export interface CubeProps {
 	shouldAddToGrid: boolean;
 }
 export class SimpleSquare {
+	cubeMesh?: CubeMesh;
+	instance: PathVisualzer;
 	i: number;
 	j: number;
 	distance: number;
@@ -21,6 +23,7 @@ export class SimpleSquare {
 	shouldAddToGrid: boolean;
 	prevSquare: SimpleSquare | null;
 	constructor(
+		instance: PathVisualzer,
 		i: number,
 		j: number,
 		options: CubeProps = {
@@ -29,10 +32,12 @@ export class SimpleSquare {
 			isTarget: false,
 			isHidden: true,
 			shouldAddToGrid: true
-		}
+		},
+		cubeMesh?: CubeMesh
 	) {
 		this.i = i;
 		this.j = j;
+		this.instance = instance;
 		this.distance = Infinity;
 		this.isStart = options.isStart;
 		this.isTarget = options.isTarget;
@@ -41,10 +46,34 @@ export class SimpleSquare {
 		this.isHidden = false;
 		this.visited = false;
 		this.prevSquare = null;
+		this.cubeMesh = cubeMesh;
 	}
 
 	getIndex() {
 		return [this.i, this.j];
+	}
+
+	getPositionFromIndex() {
+		const [column, row] = this.getIndex();
+		const { squareSize, size } = this.instance.gridSettings;
+		const x = column * squareSize - size / 2 + squareSize / 2;
+		const y = row * squareSize - size / 2 + squareSize / 2;
+		return new THREE.Vector3(x, 0, y);
+	}
+
+	createCube() {
+		if (this.isStart || this.isTarget) return;
+		const material = new THREE.MeshBasicMaterial({ color: 0x0356fc });
+		const cube = new CubeMesh(this.instance, material, this.instance.gridSettings.squareSize, {
+			isHidden: false,
+			isWall: true,
+			isStart: false,
+			isTarget: false,
+			shouldAddToGrid: true
+		});
+		cube.position.copy(this.getPositionFromIndex());
+		cube.setPositon();
+		this.instance.scene.add(cube);
 	}
 }
 
@@ -107,7 +136,7 @@ export class CubeMesh extends THREE.Mesh {
 
 	add() {
 		this.instance.scene.add(this);
-		this.instance.objects.push(this);
+		// this.instance.objects.push(this);
 		if (this.shouldAddToGrid) {
 			let [i, j] = this.getIndex();
 			this.instance.grid[i][j] = this.toSimpleSquare();
@@ -129,7 +158,7 @@ export class CubeMesh extends THREE.Mesh {
 
 	toSimpleSquare() {
 		let [i, j] = this.getIndex();
-		return new SimpleSquare(i, j, this.options);
+		return new SimpleSquare(this.instance, i, j, this.options, this);
 	}
 }
 
@@ -183,10 +212,17 @@ export class PathVisualzer {
 		for (let i = 0; i < this.gridSettings.division; ++i) {
 			let currRow = [];
 			for (let j = 0; j < this.gridSettings.division; ++j) {
-				currRow.push(new SimpleSquare(i, j));
+				currRow.push(new SimpleSquare(this, i, j));
 			}
 			this.grid.push(currRow);
 		}
+
+		this.onWindowResize = this.onWindowResize.bind(this);
+		this.onMouseMove = this.onMouseMove.bind(this);
+		this.onMouseDown = this.onMouseDown.bind(this);
+		this.onMouseUp = this.onMouseUp.bind(this);
+		this.onDocumentKeyDown = this.onDocumentKeyDown.bind(this);
+		this.onDocumentKeyUp = this.onDocumentKeyUp.bind(this);
 	}
 
 	init() {
@@ -220,12 +256,12 @@ export class PathVisualzer {
 		this.render();
 
 		//events
-		window.addEventListener('resize', this.onWindowResize.bind(this));
-		window.addEventListener('mousemove', this.onMouseMove.bind(this));
-		window.addEventListener('mousedown', this.onMouseDown.bind(this));
-		window.addEventListener('mouseup', this.onMouseUp.bind(this));
-		document.addEventListener('keydown', this.onDocumentKeyDown.bind(this));
-		document.addEventListener('keyup', this.onDocumentKeyUp.bind(this));
+		window.addEventListener('resize', this.onWindowResize);
+		window.addEventListener('mousemove', this.onMouseMove);
+		window.addEventListener('mousedown', this.onMouseDown);
+		window.addEventListener('mouseup', this.onMouseUp);
+		document.addEventListener('keydown', this.onDocumentKeyDown);
+		document.addEventListener('keyup', this.onDocumentKeyUp);
 
 		this.initalized = true;
 	}
@@ -247,13 +283,13 @@ export class PathVisualzer {
 			-(event.clientY / window.innerHeight) * 2 + 1
 		);
 
-		this.raycaster.setFromCamera(this.mouse, this.camera);
+		this.raycaster.setFromCamera(this.mouse.clone(), this.camera);
 
 		const intersects = this.raycaster.intersectObjects(this.objects, false);
 		if (intersects.length > 0) {
 			const intersect = intersects[0];
 			// console.log(intersect.point, intersect.face?.normal);
-			this.rollOverMesh.position.set(intersect.point.x + 1, 0, intersect.point.z - 1);
+			this.rollOverMesh.position.copy(intersect.point).add(intersect.face!.normal);
 			this.rollOverMesh.setPositon();
 			if (this.isMouseDown && this.isShiftDown) {
 				this.removeCube();
@@ -311,7 +347,13 @@ export class PathVisualzer {
 			const [intersect] = intersects;
 			console.log(intersect);
 			const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-			const cube = new CubeMesh(this, material, this.gridSettings.squareSize);
+			const cube = new CubeMesh(this, material, this.gridSettings.squareSize, {
+				isHidden: false,
+				isWall: true,
+				isStart: false,
+				isTarget: false,
+				shouldAddToGrid: true
+			});
 			cube.position.copy(intersect.point).add(intersect.face!.normal);
 			cube.setPositon();
 			this.scene.add(cube);
@@ -335,7 +377,7 @@ export class PathVisualzer {
 
 				this.scene.remove(cube);
 				this.objects.splice(this.objects.indexOf(intersect.object), 1);
-				this.grid[i][j] = new SimpleSquare(i, j);
+				this.grid[i][j] = new SimpleSquare(this, i, j);
 			}
 		}
 	}
@@ -409,6 +451,12 @@ export class PathVisualzer {
 	}
 
 	dispose() {
+		window.addEventListener('resize', this.onWindowResize);
+		window.addEventListener('mousemove', this.onMouseMove);
+		window.addEventListener('mousedown', this.onMouseDown);
+		window.addEventListener('mouseup', this.onMouseUp);
+		document.addEventListener('keydown', this.onDocumentKeyDown);
+		document.addEventListener('keyup', this.onDocumentKeyUp);
 		try {
 			this.scene.traverse((obj: any) => {
 				if (obj.geometry) {
