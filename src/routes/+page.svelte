@@ -3,7 +3,7 @@
 	import { CubeMesh, PathVisualzer } from '../lib/main';
 	import * as THREE from 'three';
 	import { browser } from '$app/environment';
-	import { dijstra } from '../lib/algorithems/dijkstra';
+	import * as algo from '../lib/algorithems/dijkstra';
 
 	let container!: HTMLDivElement;
 
@@ -26,11 +26,14 @@
 	};
 
 	function onClick() {
-		let res = dijstra(
+		(window as any).algo = algo;
+		console.time('algo');
+		let res = algo.dijstra(
 			instance.grid,
 			instance.grid.flat().find((s) => s.isStart)!,
 			instance.grid.flat().find((s) => s.isTarget)!
 		);
+		console.timeEnd('algo');
 		console.log(res);
 	}
 </script>

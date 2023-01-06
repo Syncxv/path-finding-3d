@@ -153,8 +153,8 @@ export class PathVisualzer {
 	isShiftDown = false;
 
 	gridSettings = {
-		size: 500,
-		division: 20,
+		size: 5000,
+		division: 40,
 		get squareSize() {
 			return this.size / this.division;
 		}
@@ -180,9 +180,9 @@ export class PathVisualzer {
 			RIGHT: THREE.MOUSE.LEFT
 		};
 		this.grid = [];
-		for (let i = 0; i < this.gridSettings.size; ++i) {
+		for (let i = 0; i < this.gridSettings.division; ++i) {
 			let currRow = [];
-			for (let j = 0; j < this.gridSettings.size; ++j) {
+			for (let j = 0; j < this.gridSettings.division; ++j) {
 				currRow.push(new SimpleSquare(i, j));
 			}
 			this.grid.push(currRow);
