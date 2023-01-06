@@ -70,5 +70,6 @@ export class SimpleSquare {
 		cube.position.copy(this.getPositionFromIndex());
 		cube.setPositon();
 		this.instance.scene.add(cube);
+		this.cubeMesh = cube;
 	}
 }
