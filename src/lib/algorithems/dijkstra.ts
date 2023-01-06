@@ -1,4 +1,5 @@
-import type { SimpleSquare, Grid } from '../main';
+import type { SimpleSquare } from '../classes/SimpleSquare';
+import type { Grid } from '../main';
 
 interface QueueItem {
 	element: SimpleSquare;

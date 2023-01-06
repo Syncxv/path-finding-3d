@@ -1,9 +1,10 @@
 <script lang="ts">
 	import { onDestroy, onMount } from 'svelte';
-	import { CubeMesh, PathVisualzer, SimpleSquare } from '../lib/main';
+	import { PathVisualzer } from '../lib/main';
 	import * as THREE from 'three';
 	import { browser } from '$app/environment';
 	import * as algo from '../lib/algorithems/dijkstra';
+	import type { SimpleSquare } from '../lib/classes/SimpleSquare';
 
 	let container!: HTMLDivElement;
 
