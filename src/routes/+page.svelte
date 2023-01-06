@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onDestroy, onMount } from 'svelte';
-	import { CubeMesh, PathVisualzer } from '../lib/main';
+	import { CubeMesh, PathVisualzer, SimpleSquare } from '../lib/main';
 	import * as THREE from 'three';
 	import { browser } from '$app/environment';
 	import * as algo from '../lib/algorithems/dijkstra';
@@ -25,21 +25,30 @@
 		instance.camera.position.z = parseInt((e.target as HTMLInputElement).value);
 	};
 
-	function onClick() {
+	const animate = (path: SimpleSquare[], type: 'shortest' | 'visited') => {
+		return new Promise((res) => {
+			for (let i = 0; i < path.length; ++i) {
+				setTimeout(() => {
+					path[i].createCube(type);
+					if (i == path.length - 1) res(true);
+				}, 4 * i);
+			}
+		});
+	};
+
+	async function onClick() {
 		(window as any).algo = algo;
-		console.time('algo');
+
+		const target = instance.grid.flat().find((s) => s.isTarget)!;
+
 		let visited = algo.dijstra(
 			instance.grid,
 			instance.grid.flat().find((s) => s.isStart)!,
-			instance.grid.flat().find((s) => s.isTarget)!
+			target
 		)!;
-		console.timeEnd('algo');
-		console.log(visited);
-		for (let i = 0; i < visited.length; ++i) {
-			setTimeout(() => {
-				visited[i].createCube();
-			}, 4 * i);
-		}
+		const shortest = algo.findShortestPath(target);
+		await animate(visited, 'visited');
+		await animate(shortest, 'shortest');
 	}
 </script>
 

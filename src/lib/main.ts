@@ -61,9 +61,11 @@ export class SimpleSquare {
 		return new THREE.Vector3(x, 0, y);
 	}
 
-	createCube() {
+	createCube(type: 'shortest' | 'visited') {
 		if (this.isStart || this.isTarget) return;
-		const material = new THREE.MeshBasicMaterial({ color: 0x0356fc });
+		const material = new THREE.MeshBasicMaterial({
+			color: type === 'visited' ? 0x0356fc : 0xfff424
+		});
 		const cube = new CubeMesh(this.instance, material, this.instance.gridSettings.squareSize, {
 			isHidden: false,
 			isWall: true,
