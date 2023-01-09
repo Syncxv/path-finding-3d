@@ -53,9 +53,12 @@
 	}
 
 	function reset() {
-		console.log(instance.grid.flat().filter((m) => m.cubeMesh).length);
-		instance.grid.flat().forEach((elem) => elem.removeCube());
-		console.log(instance.grid.flat().filter((m) => m.cubeMesh).length);
+		console.log(instance.grid.flat().filter((m) => m.cubeMesh));
+		instance.grid
+			.flat()
+			.filter((m) => !(m.isTarget || m.isStart))
+			.forEach((elem) => elem.removeCube());
+		console.log(instance.grid.flat().filter((m) => m.cubeMesh));
 	}
 </script>
 
