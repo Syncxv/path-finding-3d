@@ -133,13 +133,20 @@ export class PathVisualzer {
 
 			const intersect = intersects[0];
 			let object = event.object as CubeMesh;
+
 			if (intersect) {
 				object.position.copy(intersect.point).add(intersect.face!.normal);
 				object.setPositon();
 				//reset that square
-				this.grid.flat().find((m) => m.isTarget)!.isTarget = false;
-				const [i, j] = object.getIndex();
-				this.grid[i][j].isTarget = true;
+				if (object.isTarget) {
+					this.grid.flat().find((m) => m.isTarget)!.isTarget = false;
+					const [i, j] = object.getIndex();
+					this.grid[i][j].isTarget = true;
+				} else {
+					this.grid.flat().find((m) => m.isStart)!.isStart = false;
+					const [i, j] = object.getIndex();
+					this.grid[i][j].isStart = true;
+				}
 			}
 			this.isDraging = false;
 		});
