@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import type { PathVisualzer } from '../main';
-import type { CubeProps } from '../types';
+import type { CubeProps, Direction } from '../types';
 import { CubeMesh } from './CubeMesh';
 
 export class SimpleSquare {
@@ -16,6 +16,12 @@ export class SimpleSquare {
 	visited: boolean;
 	shouldAddToGrid: boolean;
 	prevSquare: SimpleSquare | null;
+
+	costFromStart = Infinity;
+	estimatedCostToGoal = Infinity;
+	totalCost = Infinity;
+
+	parent: SimpleSquare | null = null;
 	constructor(
 		instance: PathVisualzer,
 		i: number,

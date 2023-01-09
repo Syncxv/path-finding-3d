@@ -3,7 +3,7 @@
 	import { PathVisualzer } from '../lib/main';
 	import * as THREE from 'three';
 	import { browser } from '$app/environment';
-	import * as algo from '../lib/algorithems/dijkstra';
+	import * as algo from '../lib/algorithems/aStar';
 	import type { SimpleSquare } from '../lib/classes/SimpleSquare';
 
 	let container!: HTMLDivElement;
@@ -41,15 +41,11 @@
 		(window as any).algo = algo;
 
 		const target = instance.grid.flat().find((s) => s.isTarget)!;
+		const start = instance.grid.flat().find((s) => s.isStart)!;
+		console.log(target, start);
 
-		let visited = algo.dijstra(
-			instance.grid,
-			instance.grid.flat().find((s) => s.isStart)!,
-			target
-		)!;
-		const shortest = algo.findShortestPath(target);
-		await animate(visited, 'visited');
-		await animate(shortest, 'shortest');
+		let visited = algo.astar(instance.grid, start, target)!;
+		console.log(visited);
 	}
 
 	function reset() {
