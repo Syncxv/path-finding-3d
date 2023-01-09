@@ -200,8 +200,9 @@ export class PathVisualzer {
 			cube.setPositon();
 			this.scene.add(cube);
 			let [i, j] = cube.getIndex();
-			console.log(this.grid[i][j]);
-			if (this.grid[i][j] instanceof SimpleSquare) this.grid[i][j].cubeMesh = cube;
+			let gridItem = this.grid[i][j];
+			gridItem.cubeMesh = cube;
+			gridItem.isWall = true;
 		}
 	}
 
