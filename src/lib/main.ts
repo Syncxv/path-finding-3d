@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { DragControls } from 'three/examples/jsm/controls/DragControls';
 import Stats from 'three/examples/jsm/libs/stats.module';
 import { CubeMesh } from './classes/CubeMesh';
 import { SimpleSquare } from './classes/SimpleSquare';
@@ -11,17 +12,20 @@ export class PathVisualzer {
 	scene: THREE.Scene;
 	stats!: Stats;
 	controls?: OrbitControls;
+	dragControls: DragControls;
 	renderer: THREE.WebGLRenderer;
 	container: HTMLDivElement;
 	raycaster: THREE.Raycaster;
 	mouse: THREE.Vector2;
-	objects: any[];
+	planeObjectArr: any[];
+	targets: CubeMesh[];
 
 	rollOverMesh!: CubeMesh;
 
 	initalized = false;
 	isMouseDown = false;
 	isShiftDown = false;
+	isDraging = false;
 
 	gridSettings = {
 		size: 5000,
@@ -35,7 +39,8 @@ export class PathVisualzer {
 		this.container = container;
 		this.raycaster = new THREE.Raycaster();
 		this.mouse = new THREE.Vector2();
-		this.objects = [];
+		this.planeObjectArr = [];
+		this.targets = [];
 
 		this.camera = new THREE.PerspectiveCamera(
 			45,
@@ -50,6 +55,8 @@ export class PathVisualzer {
 			MIDDLE: THREE.MOUSE.MIDDLE,
 			RIGHT: THREE.MOUSE.LEFT
 		};
+		this.dragControls = new DragControls(this.targets, this.camera, this.renderer.domElement);
+
 		this.grid = [];
 		for (let i = 0; i < this.gridSettings.division; ++i) {
 			let currRow = [];
@@ -105,6 +112,38 @@ export class PathVisualzer {
 		document.addEventListener('keydown', this.onDocumentKeyDown);
 		document.addEventListener('keyup', this.onDocumentKeyUp);
 
+		this.dragControls.addEventListener('dragstart', () => {
+			console.log('DRAG SSTART');
+			this.isDraging = true;
+		});
+
+		this.dragControls.addEventListener('drag', (event) => {
+			console.log('DRAGGING');
+			const intersects = this.raycaster.intersectObjects(this.planeObjectArr, false);
+
+			const intersect = intersects[0];
+			if (intersect) {
+				event.object.position.copy(intersect.point).add(intersect.face!.normal);
+				event.object.setPositon();
+			}
+		});
+
+		this.dragControls.addEventListener('dragend', (event) => {
+			const intersects = this.raycaster.intersectObjects(this.planeObjectArr, false);
+
+			const intersect = intersects[0];
+			let object = event.object as CubeMesh;
+			if (intersect) {
+				object.position.copy(intersect.point).add(intersect.face!.normal);
+				object.setPositon();
+				//reset that square
+				this.grid.flat().find((m) => m.isTarget)!.isTarget = false;
+				const [i, j] = object.getIndex();
+				this.grid[i][j].isTarget = true;
+			}
+			this.isDraging = false;
+		});
+
 		this.initalized = true;
 	}
 
@@ -127,21 +166,22 @@ export class PathVisualzer {
 
 		this.raycaster.setFromCamera(this.mouse.clone(), this.camera);
 
-		const intersects = this.raycaster.intersectObjects(this.objects, false);
+		const intersects = this.raycaster.intersectObjects(this.planeObjectArr, false);
 		if (intersects.length > 0) {
 			const intersect = intersects[0];
 			// console.log(intersect.point, intersect.face?.normal);
 			this.rollOverMesh.position.copy(intersect.point).add(intersect.face!.normal);
 			this.rollOverMesh.setPositon();
 			if (this.isMouseDown && this.isShiftDown) {
-				this.removeCube();
+				this.removeCube(intersects);
 			} else if (this.isMouseDown) {
-				this.addCube();
+				this.addCube(intersects);
 			}
 		}
 	}
 
 	onMouseDown(event: MouseEvent) {
+		if (this.isDraging) return;
 		this.isMouseDown = event.button === 0;
 		this.mouse.set(
 			(event.clientX / window.innerWidth) * 2 - 1,
@@ -149,10 +189,10 @@ export class PathVisualzer {
 		);
 		this.raycaster.setFromCamera(this.mouse, this.camera);
 
-		const intersects = this.raycaster.intersectObjects(this.objects, false);
+		const intersects = this.raycaster.intersectObjects(this.planeObjectArr, false);
 		if (intersects.length > 0) {
-			if (this.isShiftDown && this.isMouseDown) this.removeCube();
-			else if (this.isMouseDown) this.addCube();
+			if (this.isShiftDown && this.isMouseDown) this.removeCube(intersects);
+			else if (this.isMouseDown) this.addCube(intersects);
 		}
 	}
 
@@ -180,11 +220,8 @@ export class PathVisualzer {
 		}
 	}
 
-	addCube() {
-		this.raycaster.setFromCamera(this.mouse.clone(), this.camera);
-
-		const intersects = this.raycaster.intersectObjects(this.objects, false);
-
+	addCube(intersects: THREE.Intersection<THREE.Object3D<THREE.Event>>[]) {
+		if (this.isDraging) return;
 		if (intersects.length > 0 && intersects.length < 2) {
 			console.log('adding cube');
 			const [intersect] = intersects;
@@ -206,11 +243,7 @@ export class PathVisualzer {
 		}
 	}
 
-	removeCube() {
-		this.raycaster.setFromCamera(this.mouse.clone(), this.camera);
-
-		const intersects = this.raycaster.intersectObjects(this.objects, false);
-
+	removeCube(intersects: THREE.Intersection<THREE.Object3D<THREE.Event>>[]) {
 		const [intersect] = intersects;
 		if ((intersect.object.type = 'CubeMesh')) {
 			const cube = intersect.object as CubeMesh;
@@ -235,7 +268,7 @@ export class PathVisualzer {
 		geometry.rotateX(-Math.PI / 2);
 		const plane = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ visible: false }));
 		this.scene.add(plane);
-		this.objects.push(plane);
+		this.planeObjectArr.push(plane);
 
 		//RollOverThingy
 		const rollOverMaterial = new THREE.MeshBasicMaterial({
@@ -265,6 +298,7 @@ export class PathVisualzer {
 		targetCube.position.set(this.gridSettings.size / 4, 0, 0);
 		targetCube.setPositon();
 		targetCube.add();
+		this.targets.push(targetCube);
 
 		const startCubeMat = new THREE.MeshBasicMaterial({
 			color: 0xff00000
@@ -279,6 +313,7 @@ export class PathVisualzer {
 		startCube.position.set(-this.gridSettings.size / 4, 0, 0);
 		startCube.setPositon();
 		startCube.add();
+		this.targets.push(startCube);
 
 		//Add Grid Helper
 		const gridHelper = new THREE.GridHelper(this.gridSettings.size, this.gridSettings.division);
