@@ -5,6 +5,7 @@
 	import { browser } from '$app/environment';
 	import * as algo from '../lib/algorithems/aStar';
 	import type { SimpleSquare } from '../lib/classes/SimpleSquare';
+	import { Heap } from '../lib/classes/Heap';
 
 	let container!: HTMLDivElement;
 
@@ -12,6 +13,7 @@
 
 	onMount(() => {
 		(window as any).THREE = THREE;
+		(window as any).heap = new Heap<SimpleSquare>();
 		instance = (window as any).instance = new PathVisualzer(container);
 		instance.init();
 	});

@@ -2,8 +2,9 @@ import * as THREE from 'three';
 import type { PathVisualzer } from '../main';
 import type { CubeProps, Direction } from '../types';
 import { CubeMesh } from './CubeMesh';
+import type { IHeapItem } from './Heap';
 
-export class SimpleSquare {
+export class SimpleSquare implements IHeapItem<SimpleSquare> {
 	private _cubeMesh?: CubeMesh | null;
 	instance: PathVisualzer;
 	x: number;
@@ -21,6 +22,8 @@ export class SimpleSquare {
 	gCost = Infinity;
 
 	parent: SimpleSquare | null = null;
+
+	heapIndex: number = Infinity;
 	constructor(
 		instance: PathVisualzer,
 		i: number,
@@ -53,6 +56,14 @@ export class SimpleSquare {
 	}
 	get cubeMesh() {
 		return this._cubeMesh;
+	}
+
+	compareTo(nodeToCompare: SimpleSquare) {
+		let compare = this.fCost === nodeToCompare.fCost ? 0 : 1;
+		if (compare === 0) {
+			compare = this.hCost > nodeToCompare.hCost ? 1 : -1;
+		}
+		return -compare;
 	}
 
 	set cubeMesh(val: CubeMesh | null | undefined) {

@@ -1,25 +1,18 @@
+import { Heap } from '../classes/Heap';
+import PriorityQueue from '../classes/PriorityQueue';
 import type { SimpleSquare } from '../classes/SimpleSquare';
 import type { Grid } from '../main';
 
 export const astar = (grid: Grid, start: SimpleSquare, target: SimpleSquare): SimpleSquare[] => {
-	let openList: SimpleSquare[] = [];
+	let openList: PriorityQueue<SimpleSquare> = new PriorityQueue();
 	let closedList: SimpleSquare[] = [];
 
 	start.gCost = 0;
 	start.hCost = 0;
-	openList.push(start);
-	while (openList.length > 0) {
-		let currentNode = openList[0];
-		for (const node of openList) {
-			if (
-				node.fCost < currentNode.fCost ||
-				(node.fCost === currentNode.fCost && node.hCost < currentNode.hCost)
-			)
-				currentNode = node;
-		}
+	openList.add(start);
+	while (openList.size() > 0) {
+		let currentNode = openList.peek()!;
 
-		const index = openList.indexOf(currentNode);
-		openList.splice(index, 1);
 		closedList.push(currentNode);
 
 		if (currentNode === target) {
@@ -32,12 +25,12 @@ export const astar = (grid: Grid, start: SimpleSquare, target: SimpleSquare): Si
 
 			const newMovementCost = currentNode.gCost + getDistance(currentNode, neighbour);
 
-			if (newMovementCost < neighbour.gCost || !openList.includes(neighbour)) {
+			if (newMovementCost < neighbour.gCost || !openList.contains(neighbour)) {
 				neighbour.gCost = newMovementCost;
 				neighbour.hCost = getDistance(neighbour, target);
 				neighbour.parent = currentNode;
 
-				if (!openList.includes(neighbour)) openList.push(neighbour);
+				if (!openList.contains(neighbour)) openList.add(neighbour);
 			}
 		}
 	}
