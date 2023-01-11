@@ -40,12 +40,17 @@
 	async function onClick() {
 		(window as any).algo = algo;
 
+		console.log('-----------------------------');
 		const target = instance.grid.flat().find((s) => s.isTarget)!;
 		const start = instance.grid.flat().find((s) => s.isStart)!;
 		console.log(target, start);
 
 		let visited = algo.astar(instance.grid, start, target)!;
 		console.log(visited);
+
+		console.log('-----------------------------');
+		await animate(visited!, 'visited');
+		// await animate(shortest, 'shortest');
 	}
 
 	function reset() {

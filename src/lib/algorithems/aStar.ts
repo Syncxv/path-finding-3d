@@ -1,17 +1,17 @@
 import type { SimpleSquare } from '../classes/SimpleSquare';
 import type { Grid } from '../main';
 
-export const astar = (grid: Grid, start: SimpleSquare, target: SimpleSquare) => {
-	let openSet: SimpleSquare[] = [];
+export const astar = (grid: Grid, start: SimpleSquare, target: SimpleSquare): SimpleSquare[] => {
+	let openList: SimpleSquare[] = [];
 	let closedList: SimpleSquare[] = [];
 
 	start.gCost = 0;
 	start.hCost = 0;
-	openSet.push(start);
-	while (openSet.length > 0) {
-		console.log('loopijg', openSet, closedList);
-		let currentNode = openSet[0];
-		for (const node of openSet) {
+	openList.push(start);
+	while (openList.length > 0) {
+		console.log('loopijg', openList, closedList);
+		let currentNode = openList[0];
+		for (const node of openList) {
 			if (
 				node.fCost < currentNode.fCost ||
 				(node.fCost === currentNode.fCost && node.hCost < currentNode.hCost)
@@ -19,14 +19,13 @@ export const astar = (grid: Grid, start: SimpleSquare, target: SimpleSquare) => 
 				currentNode = node;
 		}
 
-		const index = openSet.indexOf(currentNode);
+		const index = openList.indexOf(currentNode);
 		console.log(index);
-		openSet.splice(index, 1);
+		openList.splice(index, 1);
 		closedList.push(currentNode);
 
 		if (currentNode === target) {
-			console.log('FOUND IT');
-			break;
+			return reConstruct(start, target);
 		}
 
 		const neighbours = getNeighbours(grid, currentNode);
@@ -35,15 +34,28 @@ export const astar = (grid: Grid, start: SimpleSquare, target: SimpleSquare) => 
 
 			const newMovementCost = currentNode.gCost + getDistance(currentNode, neighbour);
 
-			if (newMovementCost < neighbour.gCost || openSet.includes(neighbour)) {
+			if (newMovementCost < neighbour.gCost || !openList.includes(neighbour)) {
 				neighbour.gCost = newMovementCost;
 				neighbour.hCost = getDistance(neighbour, target);
 				neighbour.parent = currentNode;
 
-				if (!openSet.includes(neighbour)) openSet.push(neighbour);
+				if (!openList.includes(neighbour)) openList.push(neighbour);
 			}
 		}
 	}
+	return [] as SimpleSquare[];
+};
+
+const reConstruct = (start: SimpleSquare, target: SimpleSquare) => {
+	let path: SimpleSquare[] = [];
+	let currentNode = target;
+
+	while (currentNode != start) {
+		path.push(currentNode.parent!);
+		currentNode = currentNode.parent!;
+	}
+
+	return path.reverse();
 };
 
 const getDistance = (nodeA: SimpleSquare, nodeB: SimpleSquare) => {

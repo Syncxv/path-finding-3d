@@ -4,7 +4,7 @@ import type { CubeProps, Direction } from '../types';
 import { CubeMesh } from './CubeMesh';
 
 export class SimpleSquare {
-	_cubeMesh?: CubeMesh | null;
+	private _cubeMesh?: CubeMesh | null;
 	instance: PathVisualzer;
 	x: number;
 	y: number;
@@ -98,5 +98,8 @@ export class SimpleSquare {
 
 		this.instance.scene.remove(this.cubeMesh);
 		this.cubeMesh = null;
+		this.gCost = Infinity;
+		this.hCost = Infinity;
+		this.parent = null;
 	}
 }
