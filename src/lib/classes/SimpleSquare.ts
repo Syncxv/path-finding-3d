@@ -94,12 +94,13 @@ export class SimpleSquare {
 	}
 
 	removeCube() {
+		this.gCost = Infinity;
+		this.hCost = Infinity;
+		this.parent = null;
+		this.isWall = false;
 		if (this.cubeMesh == null || this.isTarget || this.isStart) return;
 
 		this.instance.scene.remove(this.cubeMesh);
 		this.cubeMesh = null;
-		this.gCost = Infinity;
-		this.hCost = Infinity;
-		this.parent = null;
 	}
 }
