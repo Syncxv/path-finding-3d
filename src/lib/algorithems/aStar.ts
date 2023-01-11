@@ -9,7 +9,6 @@ export const astar = (grid: Grid, start: SimpleSquare, target: SimpleSquare): Si
 	start.hCost = 0;
 	openList.push(start);
 	while (openList.length > 0) {
-		console.log('loopijg', openList, closedList);
 		let currentNode = openList[0];
 		for (const node of openList) {
 			if (
@@ -20,7 +19,6 @@ export const astar = (grid: Grid, start: SimpleSquare, target: SimpleSquare): Si
 		}
 
 		const index = openList.indexOf(currentNode);
-		console.log(index);
 		openList.splice(index, 1);
 		closedList.push(currentNode);
 

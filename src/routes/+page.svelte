@@ -40,7 +40,7 @@
 	async function onClick() {
 		(window as any).algo = algo;
 
-		console.log('-----------------------------');
+		console.time('-----------------------------');
 		const target = instance.grid.flat().find((s) => s.isTarget)!;
 		const start = instance.grid.flat().find((s) => s.isStart)!;
 		console.log(target, start);
@@ -48,7 +48,7 @@
 		let visited = algo.astar(instance.grid, start, target)!;
 		console.log(visited);
 
-		console.log('-----------------------------');
+		console.timeEnd('-----------------------------');
 		await animate(visited!, 'visited');
 		// await animate(shortest, 'shortest');
 	}
@@ -68,17 +68,6 @@
 		{#if instance == null || !instance.initalized}
 			<div>loading</div>
 		{:else}
-			<div class="camera-controls">
-				<input
-					on:input={onBruh}
-					type="range"
-					min="1"
-					max="9000"
-					value={instance.camera.position.z}
-					class="slider"
-					id="myRange"
-				/>
-			</div>
 			<button on:click={onClick}> Run </button>
 			<button on:click={reset}> Reset </button>
 		{/if}

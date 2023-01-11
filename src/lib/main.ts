@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { DragControls } from 'three/examples/jsm/controls/DragControls';
-import Stats from 'three/examples/jsm/libs/stats.module';
+// import Stats from 'three/examples/jsm/libs/stats.module';
 import { CubeMesh } from './classes/CubeMesh';
 import { SimpleSquare } from './classes/SimpleSquare';
 
@@ -10,7 +10,7 @@ export type Grid = SimpleSquare[][];
 export class PathVisualzer {
 	camera: THREE.PerspectiveCamera;
 	scene: THREE.Scene;
-	stats!: Stats;
+	// stats!: Stats;
 	controls?: OrbitControls;
 	dragControls: DragControls;
 	renderer: THREE.WebGLRenderer;
@@ -82,8 +82,8 @@ export class PathVisualzer {
 		this.scene.background = new THREE.Color(0xf0f0f0f);
 
 		//Stats
-		this.stats = Stats();
-		document.body.appendChild(this.stats.dom);
+		// this.stats = Stats();
+		// document.body.appendChild(this.stats.dom);
 
 		// lights
 		const ambientLight = new THREE.AmbientLight(0x606060);
@@ -242,7 +242,7 @@ export class PathVisualzer {
 	addCube(intersects: THREE.Intersection<THREE.Object3D<THREE.Event>>[]) {
 		if (this.isDraging) return;
 		if (intersects.length > 0 && intersects.length < 2) {
-			console.log('adding cube');
+			console.trace('adding cube');
 			const [intersect] = intersects;
 			const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
 			const cube = new CubeMesh(this, material, this.gridSettings.squareSize, {
@@ -341,7 +341,7 @@ export class PathVisualzer {
 
 	render() {
 		this.renderer.render(this.scene, this.camera);
-		this.stats.update();
+		// this.stats.update();
 		requestAnimationFrame(this.render.bind(this));
 	}
 
