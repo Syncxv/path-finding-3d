@@ -1,5 +1,6 @@
 import type { SimpleSquare } from '../classes/SimpleSquare';
 import type { Grid } from '../main';
+import { flatten } from '../utils/flatten';
 
 interface QueueItem {
 	element: SimpleSquare;
@@ -200,15 +201,7 @@ export default class PriorityQueue<T extends Object> {
 		};
 	}
 }
-export const flatten = (grid: Grid) => {
-	const flat = [];
-	for (const row of grid) {
-		for (const square of row) {
-			flat.push(square);
-		}
-	}
-	return flat;
-};
+
 export const dijstra = (grid: Grid, start: SimpleSquare, target: SimpleSquare) => {
 	const squares = flatten(grid);
 	const unvisitedSquares = [...squares];

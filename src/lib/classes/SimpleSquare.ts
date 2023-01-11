@@ -1,13 +1,13 @@
 import * as THREE from 'three';
 import type { PathVisualzer } from '../main';
-import type { CubeProps } from '../types';
+import type { CubeProps, Direction } from '../types';
 import { CubeMesh } from './CubeMesh';
 
 export class SimpleSquare {
-	_cubeMesh?: CubeMesh | null;
+	private _cubeMesh?: CubeMesh | null;
 	instance: PathVisualzer;
-	i: number;
-	j: number;
+	x: number;
+	y: number;
 	distance: number;
 	isStart: boolean;
 	isTarget: boolean;
@@ -16,6 +16,11 @@ export class SimpleSquare {
 	visited: boolean;
 	shouldAddToGrid: boolean;
 	prevSquare: SimpleSquare | null;
+
+	hCost = Infinity;
+	gCost = Infinity;
+
+	parent: SimpleSquare | null = null;
 	constructor(
 		instance: PathVisualzer,
 		i: number,
@@ -29,8 +34,8 @@ export class SimpleSquare {
 		},
 		cubeMesh?: CubeMesh
 	) {
-		this.i = i;
-		this.j = j;
+		this.x = i;
+		this.y = j;
 		this.instance = instance;
 		this.distance = Infinity;
 		this.isStart = options.isStart;
@@ -41,6 +46,10 @@ export class SimpleSquare {
 		this.visited = false;
 		this.prevSquare = null;
 		this._cubeMesh = cubeMesh;
+	}
+
+	get fCost() {
+		return this.gCost + this.hCost;
 	}
 	get cubeMesh() {
 		return this._cubeMesh;
@@ -54,7 +63,7 @@ export class SimpleSquare {
 	}
 
 	getIndex() {
-		return [this.i, this.j];
+		return [this.x, this.y];
 	}
 
 	getPositionFromIndex() {
@@ -85,6 +94,10 @@ export class SimpleSquare {
 	}
 
 	removeCube() {
+		this.gCost = Infinity;
+		this.hCost = Infinity;
+		this.parent = null;
+		this.isWall = false;
 		if (this.cubeMesh == null || this.isTarget || this.isStart) return;
 
 		this.instance.scene.remove(this.cubeMesh);

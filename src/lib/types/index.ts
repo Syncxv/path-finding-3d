@@ -5,3 +5,5 @@ export interface CubeProps {
 	isHidden: boolean;
 	shouldAddToGrid: boolean;
 }
+
+export type Direction = 'up' | 'down' | 'right' | 'left';
