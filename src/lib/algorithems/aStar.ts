@@ -20,7 +20,6 @@ export const astar = (grid: Grid, start: SimpleSquare, target: SimpleSquare): Si
 				currentNode = node;
 		}
 		const index = openList.indexOf(currentNode);
-		console.log(index);
 		openList.splice(index, 1);
 
 		closedList.push(currentNode);
