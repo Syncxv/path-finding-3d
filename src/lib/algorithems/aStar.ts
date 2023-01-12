@@ -4,14 +4,24 @@ import type { SimpleSquare } from '../classes/SimpleSquare';
 import type { Grid } from '../main';
 
 export const astar = (grid: Grid, start: SimpleSquare, target: SimpleSquare): SimpleSquare[] => {
-	let openList: PriorityQueue<SimpleSquare> = new PriorityQueue();
+	let openList: SimpleSquare[] = [];
 	let closedList: SimpleSquare[] = [];
 
 	start.gCost = 0;
 	start.hCost = 0;
-	openList.add(start);
-	while (openList.size() > 0) {
-		let currentNode = openList.peek()!;
+	openList.push(start);
+	while (openList.length > 0) {
+		let currentNode = openList[0];
+		for (const node of openList) {
+			if (
+				node.fCost < currentNode.fCost ||
+				(node.fCost === currentNode.fCost && node.hCost < currentNode.hCost)
+			)
+				currentNode = node;
+		}
+		const index = openList.indexOf(currentNode);
+		console.log(index);
+		openList.splice(index, 1);
 
 		closedList.push(currentNode);
 
@@ -25,12 +35,12 @@ export const astar = (grid: Grid, start: SimpleSquare, target: SimpleSquare): Si
 
 			const newMovementCost = currentNode.gCost + getDistance(currentNode, neighbour);
 
-			if (newMovementCost < neighbour.gCost || !openList.contains(neighbour)) {
+			if (newMovementCost < neighbour.gCost || !openList.includes(neighbour)) {
 				neighbour.gCost = newMovementCost;
 				neighbour.hCost = getDistance(neighbour, target);
 				neighbour.parent = currentNode;
 
-				if (!openList.contains(neighbour)) openList.add(neighbour);
+				if (!openList.includes(neighbour)) openList.push(neighbour);
 			}
 		}
 	}

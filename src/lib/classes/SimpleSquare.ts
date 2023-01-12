@@ -59,9 +59,9 @@ export class SimpleSquare implements IHeapItem<SimpleSquare> {
 	}
 
 	compareTo(nodeToCompare: SimpleSquare) {
-		let compare = this.fCost === nodeToCompare.fCost ? 0 : 1;
+		let compare = this.fCost === nodeToCompare?.fCost ? 0 : 1;
 		if (compare === 0) {
-			compare = this.hCost > nodeToCompare.hCost ? 1 : -1;
+			compare = this.hCost > nodeToCompare?.hCost ? 1 : -1;
 		}
 		return -compare;
 	}
