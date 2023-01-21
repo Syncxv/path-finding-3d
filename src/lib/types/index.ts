@@ -7,3 +7,5 @@ export interface CubeProps {
 }
 
 export type Direction = 'up' | 'down' | 'right' | 'left';
+
+export type CallbackFunctionVariadic<T> = (...args: any[]) => T;

@@ -5,6 +5,7 @@
 	import { browser } from '$app/environment';
 	import * as algo from '../lib/algorithems/aStar';
 	import type { SimpleSquare } from '../lib/classes/SimpleSquare';
+	import { animatePaths, getPaths } from '$lib/algorithems';
 
 	let container!: HTMLDivElement;
 
@@ -45,13 +46,9 @@
 		const start = instance.grid.flat().find((s) => s.isStart)!;
 		console.log(target, start);
 
-		let visited = algo.astar(instance.grid, start, target)!;
-		let shortest = algo.getShortestPtah(start, target);
-		console.log(visited);
+		const [visited, shortest] = getPaths(instance!, 'dijkstra', start, target);
 
-		console.log('-----------------------------');
-		await animate(visited!, 'visited');
-		await animate(shortest, 'shortest');
+		await animatePaths(visited, shortest);
 	}
 
 	function reset() {
