@@ -2,10 +2,11 @@ import * as astar from './aStar';
 import * as dijkstra from './dijkstra';
 import type { SimpleSquare } from '$lib/classes/SimpleSquare';
 import type { PathVisualzer } from '$lib/main';
+import type { ALGOS } from '$lib/types';
 
 export function getPaths(
 	instance: PathVisualzer,
-	algo: 'dijkstra' | 'astar',
+	algo: keyof typeof ALGOS,
 	start: SimpleSquare,
 	target: SimpleSquare
 ) {
