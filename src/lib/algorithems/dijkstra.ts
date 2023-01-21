@@ -3,11 +3,6 @@ import type { SimpleSquare } from '../classes/SimpleSquare';
 import type { Grid } from '../main';
 import { flatten } from '../utils/flatten';
 
-interface QueueItem {
-	element: SimpleSquare;
-	priority: number;
-}
-
 export default class PriorityQueue<T extends object> {
 	private _queue: Array<T>;
 	private _size = 0;
@@ -115,6 +110,7 @@ export default class PriorityQueue<T extends object> {
 			if (item.toString().localeCompare(object!.toString()) <= 0) {
 				break;
 			}
+			// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 			this._queue[k] = object!;
 			k = child;
 		}
@@ -168,7 +164,7 @@ export default class PriorityQueue<T extends object> {
 
 	public clear(): void {
 		for (let item of this._queue) {
-			(item as any) = null;
+			(item as unknown) = null;
 		}
 		this._size = 0;
 	}
@@ -252,3 +248,5 @@ function getNearestUnvisitedNodes(square: SimpleSquare | SimpleSquare, gridy: Gr
 function sortByDistance(unvisitedNodes: (SimpleSquare | SimpleSquare)[]) {
 	return unvisitedNodes.sort((a, b) => a.distance - b.distance);
 }
+
+export const name = 'dijkstra';

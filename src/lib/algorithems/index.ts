@@ -11,12 +11,14 @@ export function getPaths(
 ) {
 	switch (algo) {
 		case 'astar': {
+			// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 			const visited = astar.astar(instance.grid, start, target)!;
 			const shortest = astar.getShortestPtah(start, target);
 
 			return [visited, shortest];
 		}
 		case 'dijkstra': {
+			// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 			const visited = dijkstra.dijstra(instance.grid, start, target)!;
 			const shortest = dijkstra.getShortestPtah(target);
 
@@ -30,6 +32,7 @@ export function getPaths(
 }
 
 export async function animatePaths(visited: SimpleSquare[], shortest: SimpleSquare[]) {
+	// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 	await animate(visited!, 'visited');
 	await animate(shortest, 'shortest');
 }
@@ -44,3 +47,5 @@ const animate = (path: SimpleSquare[], type: 'shortest' | 'visited') => {
 		}
 	});
 };
+
+export const algorithems = [astar, dijkstra];

@@ -1,7 +1,7 @@
 import type { SimpleSquare } from '../classes/SimpleSquare';
 import type { Grid } from '../main';
 
-export const astar = (grid: Grid, start: SimpleSquare, target: SimpleSquare): SimpleSquare[]=> {
+export const astar = (grid: Grid, start: SimpleSquare, target: SimpleSquare): SimpleSquare[] => {
 	const openList: SimpleSquare[] = [];
 	const closedList: SimpleSquare[] = [];
 
@@ -25,7 +25,7 @@ export const astar = (grid: Grid, start: SimpleSquare, target: SimpleSquare): Si
 		closedList.push(currentNode);
 
 		if (currentNode === target) {
-			return closedList
+			return closedList;
 		}
 
 		const neighbours = getNeighbours(grid, currentNode);
@@ -84,3 +84,5 @@ const getNeighbours = (grid: Grid, node: SimpleSquare): SimpleSquare[] => {
 	}
 	return ret;
 };
+
+export const name = 'astar';

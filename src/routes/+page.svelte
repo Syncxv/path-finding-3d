@@ -3,14 +3,14 @@
 	import { PathVisualzer } from '../lib/main';
 	import * as THREE from 'three';
 	import { browser } from '$app/environment';
-	import * as algo from '../lib/algorithems/aStar';
 	import type { SimpleSquare } from '../lib/classes/SimpleSquare';
-	import { animatePaths, getPaths } from '$lib/algorithems';
+	import { algorithems, animatePaths, getPaths } from '$lib/algorithems';
+	import type { ALGOS } from '$lib/types';
 
 	let container!: HTMLDivElement;
 
 	let instance: PathVisualzer;
-
+	let algo: keyof typeof ALGOS;
 	onMount(() => {
 		(window as any).THREE = THREE;
 		instance = (window as any).instance = new PathVisualzer(container);
@@ -39,14 +39,13 @@
 	};
 
 	async function onClick() {
-		(window as any).algo = algo;
-
+		console.log(algo);
 		console.log('-----------------------------');
 		const target = instance.grid.flat().find((s) => s.isTarget)!;
 		const start = instance.grid.flat().find((s) => s.isStart)!;
 		console.log(target, start);
 
-		const [visited, shortest] = getPaths(instance!, 'dijkstra', start, target);
+		const [visited, shortest] = getPaths(instance!, algo, start, target);
 
 		await animatePaths(visited, shortest);
 	}
@@ -77,6 +76,11 @@
 					id="myRange"
 				/>
 			</div>
+			<select bind:value={algo} name="algo" id="">
+				{#each algorithems as algo, i}
+					<option value={algo.name}> {algo.name}</option>
+				{/each}
+			</select>
 			<button on:click={onClick}> Run </button>
 			<button on:click={reset}> Reset </button>
 		{/if}

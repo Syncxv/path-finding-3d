@@ -8,4 +8,9 @@ export interface CubeProps {
 
 export type Direction = 'up' | 'down' | 'right' | 'left';
 
-export type CallbackFunctionVariadic<T> = (...args: any[]) => T;
+export type CallbackFunctionVariadic<T> = (...args: unknown[]) => T;
+
+export const ALGOS = {
+	astar: 1,
+	dijkstra: 2
+} as const;
