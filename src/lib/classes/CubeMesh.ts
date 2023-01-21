@@ -46,7 +46,7 @@ export class CubeMesh extends THREE.Mesh {
 	setSize(size: number) {
 		this._geometry.dispose();
 		this._geometry = new THREE.BoxGeometry(size, size, size);
-		(this as any).geometry = this._geometry;
+		this.geometry = this._geometry;
 		return this;
 	}
 
@@ -64,7 +64,7 @@ export class CubeMesh extends THREE.Mesh {
 		this.instance.scene.add(this);
 		// this.instance.objects.push(this);
 		if (this.shouldAddToGrid) {
-			let [i, j] = this.getIndex();
+			const [i, j] = this.getIndex();
 			this.instance.grid[i][j] = this.toSimpleSquare();
 		}
 		return this;
@@ -74,16 +74,16 @@ export class CubeMesh extends THREE.Mesh {
 		const { size } = this.instance.gridSettings;
 		const { x, z: y } = this.position;
 
-		let column = Math.floor((x + size / 2) / this.squareSize);
+		const column = Math.floor((x + size / 2) / this.squareSize);
 
 		// Calculate the row of the square
-		let row = Math.floor((y + size / 2) / this.squareSize);
+		const row = Math.floor((y + size / 2) / this.squareSize);
 		// console.log(`The row and column of the square are: (${row}, ${column})`);
 		return [column, row];
 	}
 
 	toSimpleSquare() {
-		let [i, j] = this.getIndex();
+		const [i, j] = this.getIndex();
 		return new SimpleSquare(this.instance, i, j, this.options, this);
 	}
 }

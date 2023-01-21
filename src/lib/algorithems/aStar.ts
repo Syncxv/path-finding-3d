@@ -1,9 +1,9 @@
 import type { SimpleSquare } from '../classes/SimpleSquare';
 import type { Grid } from '../main';
 
-export const astar = (grid: Grid, start: SimpleSquare, target: SimpleSquare): SimpleSquare[] => {
-	let openList: SimpleSquare[] = [];
-	let closedList: SimpleSquare[] = [];
+export const astar = (grid: Grid, start: SimpleSquare, target: SimpleSquare): SimpleSquare[]=> {
+	const openList: SimpleSquare[] = [];
+	const closedList: SimpleSquare[] = [];
 
 	start.gCost = 0;
 	start.hCost = 0;
@@ -25,7 +25,7 @@ export const astar = (grid: Grid, start: SimpleSquare, target: SimpleSquare): Si
 		closedList.push(currentNode);
 
 		if (currentNode === target) {
-			return reConstruct(start, target);
+			return closedList
 		}
 
 		const neighbours = getNeighbours(grid, currentNode);
@@ -43,11 +43,11 @@ export const astar = (grid: Grid, start: SimpleSquare, target: SimpleSquare): Si
 			}
 		}
 	}
-	return [] as SimpleSquare[];
+	return [];
 };
 
-const reConstruct = (start: SimpleSquare, target: SimpleSquare) => {
-	let path: SimpleSquare[] = [];
+export const getShortestPtah = (start: SimpleSquare, target: SimpleSquare) => {
+	const path: SimpleSquare[] = [];
 	let currentNode = target;
 
 	while (currentNode != start) {
@@ -66,9 +66,9 @@ const getDistance = (nodeA: SimpleSquare, nodeB: SimpleSquare) => {
 };
 
 const getNeighbours = (grid: Grid, node: SimpleSquare): SimpleSquare[] => {
-	var ret: SimpleSquare[] = [];
-	var x = node.x;
-	var y = node.y;
+	const ret: SimpleSquare[] = [];
+	const x = node.x;
+	const y = node.y;
 
 	if (grid[x - 1] && grid[x - 1][y]) {
 		ret.push(grid[x - 1][y]);

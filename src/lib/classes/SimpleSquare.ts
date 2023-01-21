@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import type { PathVisualzer } from '../main';
-import type { CubeProps, Direction } from '../types';
+import type { CubeProps } from '../types';
 import { CubeMesh } from './CubeMesh';
 
 export class SimpleSquare {

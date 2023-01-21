@@ -46,11 +46,12 @@
 		console.log(target, start);
 
 		let visited = algo.astar(instance.grid, start, target)!;
+		let shortest = algo.getShortestPtah(start, target);
 		console.log(visited);
 
 		console.log('-----------------------------');
 		await animate(visited!, 'visited');
-		// await animate(shortest, 'shortest');
+		await animate(shortest, 'shortest');
 	}
 
 	function reset() {
