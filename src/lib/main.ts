@@ -59,7 +59,7 @@ export class PathVisualzer {
 
 		this.grid = [];
 		for (let i = 0; i < this.gridSettings.division; ++i) {
-			let currRow = [];
+			const currRow = [];
 			for (let j = 0; j < this.gridSettings.division; ++j) {
 				currRow.push(new SimpleSquare(this, i, j));
 			}
@@ -132,14 +132,14 @@ export class PathVisualzer {
 			const intersects = this.raycaster.intersectObjects(this.planeObjectArr, false);
 
 			const intersect = intersects[0];
-			let object = event.object as CubeMesh;
+			const object = event.object as CubeMesh;
 
 			if (intersect) {
 				object.position.copy(intersect.point).add(intersect.face!.normal);
 				object.setPositon();
 				//reset that square
 				const [i, j] = object.getIndex();
-				let gridPos = this.grid[i][j];
+				const gridPos = this.grid[i][j];
 
 				if (object.isTarget) {
 					const previousCube = this.grid.flat().find((m) => m.isTarget)!;
@@ -255,8 +255,8 @@ export class PathVisualzer {
 			cube.position.copy(intersect.point).add(intersect.face!.normal);
 			cube.setPositon();
 			this.scene.add(cube);
-			let [i, j] = cube.getIndex();
-			let gridItem = this.grid[i][j];
+			const [i, j] = cube.getIndex();
+			const gridItem = this.grid[i][j];
 			gridItem.cubeMesh = cube;
 			gridItem.isWall = true;
 		}
@@ -264,10 +264,10 @@ export class PathVisualzer {
 
 	removeCube(intersects: THREE.Intersection<THREE.Object3D<THREE.Event>>[]) {
 		const [intersect] = intersects;
-		if ((intersect.object.type = 'CubeMesh')) {
+		if (intersect.object.type == 'CubeMesh') {
 			const cube = intersect.object as CubeMesh;
 			if (typeof cube.getIndex === 'function') {
-				let [i, j] = cube.getIndex();
+				const [i, j] = cube.getIndex();
 
 				this.scene.remove(cube);
 				this.grid[i][j].removeCube();
@@ -370,7 +370,7 @@ export class PathVisualzer {
 			this.renderer.dispose();
 		} catch (err) {
 			console.error(err);
-			debugger;
+			// debugger;
 		}
 	}
 }
