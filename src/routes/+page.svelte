@@ -39,7 +39,7 @@
 	};
 
 	async function onClick() {
-		reset();
+		// reset();
 		console.log('-----------------------------');
 		const target = instance.grid.flat().find((s) => s.isTarget)!;
 		const start = instance.grid.flat().find((s) => s.isStart)!;
