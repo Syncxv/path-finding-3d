@@ -39,7 +39,7 @@
 	};
 
 	async function onClick() {
-		// reset();
+		resetPaths();
 		console.log('-----------------------------');
 		const target = instance.grid.flat().find((s) => s.isTarget)!;
 		const start = instance.grid.flat().find((s) => s.isStart)!;
@@ -57,6 +57,13 @@
 			.filter((m) => !(m.isTarget || m.isStart))
 			.forEach((elem) => elem.removeCube());
 		console.log(instance.grid.flat().filter((m) => m.cubeMesh));
+	}
+
+	function resetPaths() {
+		instance.grid
+			.flat()
+			.filter((m) => m.visited || m.cubeMesh?.visited)
+			.forEach((elem) => elem.removeCube());
 	}
 </script>
 

@@ -87,6 +87,7 @@ export class SimpleSquare {
 			isTarget: false,
 			shouldAddToGrid: true
 		});
+		cube.visited = true;
 		cube.position.copy(this.getPositionFromIndex());
 		cube.setPositon();
 		this.instance.scene.add(cube);
