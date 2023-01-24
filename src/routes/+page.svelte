@@ -27,17 +27,6 @@
 		instance.camera.position.z = parseInt((e.target as HTMLInputElement).value);
 	};
 
-	const animate = (path: SimpleSquare[], type: 'shortest' | 'visited') => {
-		return new Promise((res) => {
-			for (let i = 0; i < path.length; ++i) {
-				setTimeout(() => {
-					path[i].createCube(type);
-					if (i == path.length - 1) res(true);
-				}, 4 * i);
-			}
-		});
-	};
-
 	async function onClick() {
 		resetPaths();
 		console.log('-----------------------------');
