@@ -4,7 +4,7 @@
 	import * as THREE from 'three';
 	import { browser } from '$app/environment';
 	import type { SimpleSquare } from '../lib/classes/SimpleSquare';
-	import { algorithems, animatePaths, getPaths } from '$lib/algorithems';
+	import { algorithems, AnimationHandler, getPaths } from '$lib/algorithems';
 	import type { ALGOS } from '$lib/types';
 
 	let container!: HTMLDivElement;
@@ -27,6 +27,8 @@
 		instance.camera.position.z = parseInt((e.target as HTMLInputElement).value);
 	};
 
+	let animation: AnimationHandler;
+
 	async function onClick() {
 		resetPaths();
 		console.log('-----------------------------');
@@ -36,10 +38,12 @@
 
 		const [visited, shortest] = getPaths(instance!, algo, start, target);
 
-		await animatePaths(visited, shortest);
+		animation = new AnimationHandler(visited, shortest);
+		animation.start();
 	}
 
 	function reset() {
+		animation.stop();
 		console.log(instance.grid.flat().filter((m) => m.cubeMesh));
 		instance.grid
 			.flat()

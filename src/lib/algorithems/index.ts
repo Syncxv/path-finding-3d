@@ -32,21 +32,36 @@ export function getPaths(
 	}
 }
 
-export async function animatePaths(visited: SimpleSquare[], shortest: SimpleSquare[]) {
-	// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-	await animate(visited!, 'visited');
-	await animate(shortest, 'shortest');
+export class AnimationHandler {
+	hasStopped = false;
+	visited: SimpleSquare[];
+	shortest: SimpleSquare[];
+
+	constructor(visted: SimpleSquare[], shortest: SimpleSquare[]) {
+		this.visited = visted;
+		this.shortest = shortest;
+		return this;
+	}
+
+	async start() {
+		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+		await this.animate(this.visited!, 'visited');
+		await this.animate(this.shortest, 'shortest');
+	}
+
+	stop() {
+		this.hasStopped = true;
+	}
+	animate(path: SimpleSquare[], type: 'shortest' | 'visited') {
+		return new Promise((res, rej) => {
+			for (let i = 0; i < path.length; ++i) {
+				setTimeout(() => {
+					if (this.hasStopped) return rej(false);
+					path[i].createCube(type);
+					if (i == path.length - 1) res(true);
+				}, 4 * i);
+			}
+		});
+	}
 }
-
-const animate = (path: SimpleSquare[], type: 'shortest' | 'visited') => {
-	return new Promise((res) => {
-		for (let i = 0; i < path.length; ++i) {
-			setTimeout(() => {
-				path[i].createCube(type);
-				if (i == path.length - 1) res(true);
-			}, 4 * i);
-		}
-	});
-};
-
 export const algorithems = [astar, dijkstra];
