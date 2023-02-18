@@ -6,6 +6,7 @@
 	import type { SimpleSquare } from '../lib/classes/SimpleSquare';
 	import { algorithems, AnimationHandler, getPaths } from '$lib/algorithems';
 	import type { ALGOS } from '$lib/types';
+	import Tutorial from '$lib/components/Tutorial.svelte';
 
 	let container!: HTMLDivElement;
 
@@ -87,4 +88,5 @@
 	</nav>
 
 	<div bind:this={container} class="canvas-container" />
+	<Tutorial />
 </main>

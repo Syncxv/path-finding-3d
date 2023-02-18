@@ -122,7 +122,11 @@ export class PathVisualzer {
 			const intersects = this.raycaster.intersectObjects(this.planeObjectArr, false);
 
 			const intersect = intersects[0];
-			if (intersect) {
+			console.log(intersects);
+			if (
+				(intersect && !(intersect.object as CubeMesh).isTarget) ||
+				!(intersect.object as CubeMesh).isStart
+			) {
 				event.object.position.copy(intersect.point).add(intersect.face!.normal);
 				event.object.setPositon();
 			}
@@ -134,7 +138,10 @@ export class PathVisualzer {
 			const intersect = intersects[0];
 			const object = event.object as CubeMesh;
 
-			if (intersect) {
+			if (
+				(intersect && !(intersect.object as CubeMesh).isTarget) ||
+				!(intersect.object as CubeMesh).isStart
+			) {
 				object.position.copy(intersect.point).add(intersect.face!.normal);
 				object.setPositon();
 				//reset that square
