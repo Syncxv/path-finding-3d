@@ -17,7 +17,7 @@ export class PathVisualzer {
 	container: HTMLDivElement;
 	raycaster: THREE.Raycaster;
 	mouse: THREE.Vector2;
-	planeObjectArr: any[];
+	planeObjectArr: THREE.Object3D[];
 	targets: CubeMesh[];
 
 	rollOverMesh!: CubeMesh;
@@ -127,8 +127,10 @@ export class PathVisualzer {
 				(intersect && !(intersect.object as CubeMesh).isTarget) ||
 				!(intersect.object as CubeMesh).isStart
 			) {
-				event.object.position.copy(intersect.point).add(intersect.face!.normal);
-				event.object.setPositon();
+				if (intersect.face) {
+					event.object.position.copy(intersect.point).add(intersect.face.normal);
+					event.object.setPositon();
+				}
 			}
 		});
 
@@ -142,14 +144,17 @@ export class PathVisualzer {
 				(intersect && !(intersect.object as CubeMesh).isTarget) ||
 				!(intersect.object as CubeMesh).isStart
 			) {
-				object.position.copy(intersect.point).add(intersect.face!.normal);
-				object.setPositon();
+				if (intersect.face) {
+					object.position.copy(intersect.point).add(intersect.face.normal);
+					object.setPositon();
+				}
 				//reset that square
 				const [i, j] = object.getIndex();
 				const gridPos = this.grid[i][j];
 
 				if (object.isTarget) {
-					const previousCube = this.grid.flat().find((m) => m.isTarget)!;
+					const previousCube = this.grid.flat().find((m) => m.isTarget);
+					if (!previousCube) return;
 					previousCube.isTarget = false;
 					previousCube.cubeMesh = null;
 					object.isTarget = true;
@@ -157,8 +162,8 @@ export class PathVisualzer {
 					gridPos.cubeMesh = object;
 					gridPos.cubeMesh.isTarget = true;
 				} else {
-					const previousCube = this.grid.flat().find((m) => m.isStart)!;
-
+					const previousCube = this.grid.flat().find((m) => m.isStart);
+					if (!previousCube) return;
 					previousCube.isStart = false;
 					previousCube.cubeMesh = null;
 					object.isStart = true;
@@ -196,8 +201,10 @@ export class PathVisualzer {
 		if (intersects.length > 0) {
 			const intersect = intersects[0];
 			// console.log(intersect.point, intersect.face?.normal);
-			this.rollOverMesh.position.copy(intersect.point).add(intersect.face!.normal);
-			this.rollOverMesh.setPositon();
+			if (intersect.face) {
+				this.rollOverMesh.position.copy(intersect.point).add(intersect.face.normal);
+				this.rollOverMesh.setPositon();
+			}
 			if (this.isMouseDown && this.isShiftDown) {
 				this.removeCube(intersects);
 			} else if (this.isMouseDown) {
@@ -259,8 +266,10 @@ export class PathVisualzer {
 				isTarget: false,
 				shouldAddToGrid: true
 			});
-			cube.position.copy(intersect.point).add(intersect.face!.normal);
-			cube.setPositon();
+			if (intersect.face) {
+				cube.position.copy(intersect.point).add(intersect.face.normal);
+				cube.setPositon();
+			}
 			this.scene.add(cube);
 			const [i, j] = cube.getIndex();
 			const gridItem = this.grid[i][j];
@@ -284,9 +293,10 @@ export class PathVisualzer {
 
 	moveRollOverThingy(intersects: THREE.Intersection<THREE.Object3D<THREE.Event>>[]) {
 		const intersect = intersects[0];
-
-		this.rollOverMesh.position.copy(intersect.point).add(intersect.face!.normal);
-		this.rollOverMesh.setPositon();
+		if (intersect.face) {
+			this.rollOverMesh.position.copy(intersect.point).add(intersect.face.normal);
+			this.rollOverMesh.setPositon();
+		}
 	}
 
 	setUpGrid() {
@@ -353,13 +363,14 @@ export class PathVisualzer {
 	}
 
 	dispose() {
-		window.addEventListener('resize', this.onWindowResize);
-		window.addEventListener('mousemove', this.onMouseMove);
-		window.addEventListener('mousedown', this.onMouseDown);
-		window.addEventListener('mouseup', this.onMouseUp);
-		document.addEventListener('keydown', this.onDocumentKeyDown);
-		document.addEventListener('keyup', this.onDocumentKeyUp);
+		window.removeEventListener('resize', this.onWindowResize);
+		window.removeEventListener('mousemove', this.onMouseMove);
+		window.removeEventListener('mousedown', this.onMouseDown);
+		window.removeEventListener('mouseup', this.onMouseUp);
+		document.removeEventListener('keydown', this.onDocumentKeyDown);
+		document.removeEventListener('keyup', this.onDocumentKeyUp);
 		try {
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			this.scene.traverse((obj: any) => {
 				if (obj.geometry) {
 					obj.geometry.dispose();
