@@ -59,6 +59,13 @@
 			.filter((m) => m.visited || m.cubeMesh?.visited)
 			.forEach((elem) => elem.removeCube());
 	}
+
+	function resetWalls() {
+		instance.grid
+			.flat()
+			.filter((m) => m.isWall)
+			.forEach((elem) => elem.removeCube());
+	}
 </script>
 
 <main>
@@ -73,6 +80,7 @@
 			</select>
 			<button on:click={onClick}> Run </button>
 			<button on:click={reset}> Reset </button>
+			<button on:click={resetWalls}> Reset Walls </button>
 		{/if}
 	</nav>
 
