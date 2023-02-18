@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { TutorialPages } from '$lib/constants';
 
-	let selectedPage = 0;
+	let selectedPageIndex = 0;
+	let selectedPage = TutorialPages[selectedPageIndex];
 	let isOpen = true;
 </script>
 
@@ -10,17 +11,22 @@
 		<div class="header">
 			<div class="proggress" />
 			<div class="content">
-				<h1>{TutorialPages[selectedPage].heading}</h1>
-				<p>{TutorialPages[selectedPage].description}</p>
+				<h1>{selectedPage.heading}</h1>
+				<p>{selectedPage.description}</p>
+				{#if selectedPage.media?.type === 'img'}
+					<div class="img-wrapper"><img src={selectedPage.media?.src} alt="" /></div>
+				{/if}
 			</div>
 		</div>
 		<div class="footer">
 			<button on:click={() => (isOpen = false)}>Skip</button>
 
 			<button
-				on:click={() =>
-					selectedPage === TutorialPages.length - 1 ? (isOpen = false) : selectedPage++}
-				>{selectedPage === TutorialPages.length - 1 ? 'Finish' : 'Next'}</button
+				on:click={() => {
+					if (selectedPageIndex === TutorialPages.length - 1) return (isOpen = false);
+					selectedPageIndex++;
+					selectedPage = TutorialPages[selectedPageIndex];
+				}}>{selectedPageIndex === TutorialPages.length - 1 ? 'Finish' : 'Next'}</button
 			>
 		</div>
 	</div>
@@ -36,11 +42,19 @@
 		flex-direction: column;
 		justify-content: space-between;
 		align-items: start;
-		background-color: rgb(238, 238, 238);
+		background-color: white;
 		padding: 0.5rem;
 		border-radius: 4px;
-		width: 30%;
-		height: 15%;
+		width: 40%;
+		min-height: 20%;
+
+		.content {
+			.img-wrapper {
+				border-radius: 8px;
+				overflow: hidden;
+				padding: 0.6rem;
+			}
+		}
 
 		.footer {
 			width: 100%;
