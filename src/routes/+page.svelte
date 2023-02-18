@@ -66,17 +66,6 @@
 		{#if instance == null || !instance.initalized}
 			<div>loading</div>
 		{:else}
-			<div class="camera-controls">
-				<input
-					on:input={onBruh}
-					type="range"
-					min="1"
-					max="9000"
-					value={instance.camera.position.z}
-					class="slider"
-					id="myRange"
-				/>
-			</div>
 			<select bind:value={algo} name="algo" id="">
 				{#each algorithems as algo, i}
 					<option value={algo.name}> {algo.name}</option>
@@ -87,6 +76,6 @@
 		{/if}
 	</nav>
 
-	<div bind:this={container} class="canvas-container" />
 	<Tutorial />
+	<div bind:this={container} class="canvas-container" />
 </main>

@@ -30,6 +30,7 @@
 			>
 		</div>
 	</div>
+	<div class="backdrop" />
 {/if}
 
 <style lang="scss">
@@ -47,6 +48,7 @@
 		border-radius: 4px;
 		width: 40%;
 		min-height: 20%;
+		z-index: 3;
 
 		.content {
 			.img-wrapper {
@@ -62,5 +64,15 @@
 			justify-content: space-between;
 			align-items: center;
 		}
+	}
+
+	.backdrop {
+		position: absolute;
+		background: #0000002d;
+		height: 100vh;
+		width: 100vw;
+		inset: 0;
+		z-index: 2;
+		pointer-events: none;
 	}
 </style>
