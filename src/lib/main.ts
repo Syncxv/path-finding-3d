@@ -205,18 +205,18 @@ export class PathVisualzer {
 		this.raycaster.setFromCamera(this.mouse.clone(), this.camera);
 
 		const planeIntersects = this.raycaster.intersectObjects(this.planeObjectArr, false);
-		const cubeIntersects = this.raycaster.intersectObjects(this.cubeObjectArr, false);
+		const cubeIntersects = this.raycaster.intersectObjects<CubeMesh>(this.cubeObjectArr, false);
 		if (planeIntersects.length > 0) {
-			const intersect = planeIntersects[0];
+			const planeIntersect = planeIntersects[0];
 			// console.log(intersect.point, intersect.face?.normal);
-			if (intersect.face) {
-				this.rollOverMesh.position.copy(intersect.point).add(intersect.face.normal);
+			if (planeIntersect.face) {
+				this.rollOverMesh.position.copy(planeIntersect.point).add(planeIntersect.face.normal);
 				this.rollOverMesh.setPosition();
 			}
 			if (this.isMouseDown && this.isShiftDown) {
 				this.removeCube(cubeIntersects);
 			} else if (this.isMouseDown) {
-				this.addCube(cubeIntersects);
+				this.addCube(planeIntersect);
 			}
 		}
 	}
@@ -230,10 +230,11 @@ export class PathVisualzer {
 		);
 		this.raycaster.setFromCamera(this.mouse, this.camera);
 
-		const intersects = this.raycaster.intersectObjects(this.planeObjectArr, false);
-		if (intersects.length > 0) {
-			if (this.isShiftDown && this.isMouseDown) this.removeCube(intersects);
-			else if (this.isMouseDown) this.addCube(intersects);
+		const planeIntersects = this.raycaster.intersectObjects(this.planeObjectArr, false);
+		const cubeIntersects = this.raycaster.intersectObjects<CubeMesh>(this.cubeObjectArr, false);
+		if (planeIntersects.length > 0) {
+			if (this.isShiftDown && this.isMouseDown) this.removeCube(cubeIntersects);
+			else if (this.isMouseDown) this.addCube(planeIntersects[0]);
 		}
 	}
 
@@ -261,32 +262,32 @@ export class PathVisualzer {
 		}
 	}
 
-	addCube(intersects: THREE.Intersection<THREE.Object3D<THREE.Event>>[]) {
+	addCube(planeIntersect: THREE.Intersection<THREE.Object3D<THREE.Event>>) {
 		if (this.isDraging) return;
-		if (intersects.length > 0 && intersects.length < 2) {
-			console.log('adding cube');
-			const [intersect] = intersects;
-			const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-			const cube = new CubeMesh(this, material, this.gridSettings.squareSize, {
-				isWall: true,
-			});
-			if (intersect.face) {
-				cube.position.copy(intersect.point).add(intersect.face.normal);
-				cube.setPosition();
-			}
-			this.cubeObjectArr.push(cube);
-			this.scene.add(cube);
-			const [i, j] = cube.getIndex();
-			const gridItem = this.grid[i][j];
-			gridItem.cubeMesh = cube;
-			gridItem.isWall = true;
+		if (!planeIntersect || !planeIntersect.face) {
+			return;
 		}
+		console.log('adding cube');
+		const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+		const cube = new CubeMesh(this, material, this.gridSettings.squareSize, {
+			isWall: true,
+		});
+		if (planeIntersect.face) {
+			cube.position.copy(planeIntersect.point).add(planeIntersect.face.normal);
+			cube.setPosition();
+		}
+		this.cubeObjectArr.push(cube);
+		this.scene.add(cube);
+		const [i, j] = cube.getIndex();
+		const gridItem = this.grid[i][j];
+		gridItem.cubeMesh = cube;
+		gridItem.isWall = true;
 	}
 
 	// TODO: fix this. currently intersects only has plane object in it
-	removeCube(intersects: THREE.Intersection<THREE.Object3D<THREE.Event>>[]) {
+	removeCube(intersects: THREE.Intersection<CubeMesh>[],) {
 		const [intersect] = intersects;
-		if (intersect.object.type === 'CubeMesh') {
+		if (intersect && intersect.object.type === 'CubeMesh') {
 			const cube = intersect.object as CubeMesh;
 			if (typeof cube.getIndex === 'function') {
 				const [i, j] = cube.getIndex();
@@ -298,7 +299,7 @@ export class PathVisualzer {
 	}
 
 	moveRollOverThingy(intersects: THREE.Intersection<THREE.Object3D<THREE.Event>>[]) {
-		const intersect = intersects[0];
+		const [intersect] = intersects;
 		if (intersect.face) {
 			this.rollOverMesh.position.copy(intersect.point).add(intersect.face.normal);
 			this.rollOverMesh.setPosition();
@@ -311,7 +312,6 @@ export class PathVisualzer {
 		const plane = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ visible: false }));
 		this.scene.add(plane);
 		this.planeObjectArr.push(plane);
-		this.cubeObjectArr.push(plane as any);
 
 		// RollOverThingy
 		const rollOverMaterial = new THREE.MeshBasicMaterial({
