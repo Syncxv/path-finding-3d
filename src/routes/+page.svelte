@@ -25,10 +25,6 @@
 		}
 	});
 
-	const onBruh = (e: Event) => {
-		instance.camera.position.z = parseInt((e.target as HTMLInputElement).value);
-	};
-
 	let animation: AnimationHandler;
 
 	async function onClick() {
@@ -36,11 +32,9 @@
 		console.log('-----------------------------');
 		const target = instance.grid.flat().find(s => s.isTarget)!;
 		const start = instance.grid.flat().find(s => s.isStart)!;
-		console.log(target, start);
 
 		const [visited, shortest] = getPaths(instance!, algo, start, target);
 
-		console.log(visited, shortest);
 
 		animation = new AnimationHandler(visited, shortest);
 		animation.start();
