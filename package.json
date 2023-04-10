@@ -41,5 +41,8 @@
 		"@tweenjs/tween.js": "^18.6.4",
 		"glslify": "github:glslify/glslify#a3e46d8",
 		"three": "^0.148.0"
+	},
+	"engines": {
+		"pnpm": ">=8"
 	}
 }
