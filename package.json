@@ -42,6 +42,7 @@
 		"glslify": "github:glslify/glslify#a3e46d8",
 		"three": "^0.148.0"
 	},
+	"packageManager": "pnpm@8.1.1",
 	"engines": {
 		"pnpm": ">=8"
 	}
