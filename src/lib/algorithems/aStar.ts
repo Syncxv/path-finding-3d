@@ -46,7 +46,7 @@ export const astar = (grid: Grid, start: SimpleSquare, target: SimpleSquare): Si
 	return [];
 };
 
-export const getShortestPath = (start: SimpleSquare, target: SimpleSquare) => {
+export const getShortestPath = (start: SimpleSquare, target: SimpleSquare): SimpleSquare[] => {
 	const path: SimpleSquare[] = [];
 	let currentNode: SimpleSquare | null = target;
 
@@ -58,7 +58,7 @@ export const getShortestPath = (start: SimpleSquare, target: SimpleSquare) => {
 	return path.reverse();
 };
 
-const getDistance = (nodeA: SimpleSquare, nodeB: SimpleSquare) => {
+const getDistance = (nodeA: SimpleSquare, nodeB: SimpleSquare): number => {
 	const distX = Math.abs(nodeA.x - nodeB.x);
 	const distY = Math.abs(nodeA.y - nodeB.y);
 

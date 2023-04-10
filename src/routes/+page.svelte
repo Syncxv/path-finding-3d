@@ -41,7 +41,7 @@
 	}
 
 	function reset() {
-		animation.stop();
+		animation?.stop();
 		console.log(instance.grid.flat().filter(m => m.cubeMesh));
 		instance.grid
 			.flat()
@@ -57,12 +57,6 @@
 			.forEach(elem => elem.removeCube());
 	}
 
-	function resetWalls() {
-		instance.grid
-			.flat()
-			.filter(m => m.isWall)
-			.forEach(elem => elem.removeCube());
-	}
 </script>
 
 <main>
@@ -77,7 +71,6 @@
 			</select>
 			<button on:click={onClick}> Run </button>
 			<button on:click={reset}> Reset </button>
-			<button on:click={resetWalls}> Reset Walls </button>
 		{/if}
 	</nav>
 
