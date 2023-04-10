@@ -67,8 +67,7 @@ const getDistance = (nodeA: SimpleSquare, nodeB: SimpleSquare) => {
 
 const getNeighbours = (grid: Grid, node: SimpleSquare): SimpleSquare[] => {
 	const ret: SimpleSquare[] = [];
-	const x = node.x;
-	const y = node.y;
+	const { x, y } = node;
 
 	if (grid[x - 1] && grid[x - 1][y]) {
 		ret.push(grid[x - 1][y]);

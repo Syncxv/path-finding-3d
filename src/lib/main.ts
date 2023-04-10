@@ -1,7 +1,8 @@
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { DragControls } from 'three/examples/jsm/controls/DragControls';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import Stats from 'three/examples/jsm/libs/stats.module';
+
 import { CubeMesh } from './classes/CubeMesh';
 import { SimpleSquare } from './classes/SimpleSquare';
 
@@ -75,13 +76,13 @@ export class PathVisualzer {
 	}
 
 	init() {
-		//Camera
+		// Camera
 		this.camera.position.set(500, 800, 1300);
 		this.camera.lookAt(0, 0, 0);
-		//Scene
+		// Scene
 		this.scene.background = new THREE.Color(0xf0f0f0f);
 
-		//Stats
+		// Stats
 		this.stats = Stats();
 		document.body.appendChild(this.stats.dom);
 
@@ -93,7 +94,7 @@ export class PathVisualzer {
 		directionalLight.position.set(1, 0.75, 0.5).normalize();
 		this.scene.add(directionalLight);
 
-		//Renderer
+		// Renderer
 		this.renderer.setPixelRatio(window.devicePixelRatio);
 		this.renderer.setSize(
 			this.container.getBoundingClientRect().width,
@@ -105,7 +106,7 @@ export class PathVisualzer {
 		this.setUpGrid();
 		this.render();
 
-		//events
+		// events
 		window.addEventListener('resize', this.onWindowResize);
 		window.addEventListener('mousemove', this.onMouseMove);
 		window.addEventListener('mousedown', this.onMouseDown);
@@ -154,12 +155,12 @@ export class PathVisualzer {
 				object.position.copy(intersect.point).add(intersect.face.normal);
 				object.setPosition();
 			}
-			//reset that square
+			// reset that square
 			const [i, j] = object.getIndex();
 			const gridPos = this.grid[i][j];
 
 			if (object.isTarget) {
-				const previousCube = this.grid.flat().find((m) => m.isTarget);
+				const previousCube = this.grid.flat().find(m => m.isTarget);
 				if (!previousCube) return;
 				previousCube.isTarget = false;
 				previousCube.cubeMesh = null;
@@ -168,7 +169,7 @@ export class PathVisualzer {
 				gridPos.cubeMesh = object;
 				gridPos.cubeMesh.isTarget = true;
 			} else {
-				const previousCube = this.grid.flat().find((m) => m.isStart);
+				const previousCube = this.grid.flat().find(m => m.isStart);
 				if (!previousCube) return;
 				previousCube.isStart = false;
 				previousCube.cubeMesh = null;
@@ -285,7 +286,7 @@ export class PathVisualzer {
 	// TODO: fix this. currently intersects only has plane object in it
 	removeCube(intersects: THREE.Intersection<THREE.Object3D<THREE.Event>>[]) {
 		const [intersect] = intersects;
-		if (intersect.object.type == 'CubeMesh') {
+		if (intersect.object.type === 'CubeMesh') {
 			const cube = intersect.object as CubeMesh;
 			if (typeof cube.getIndex === 'function') {
 				const [i, j] = cube.getIndex();
@@ -311,7 +312,7 @@ export class PathVisualzer {
 		this.scene.add(plane);
 		this.planeObjectArr.push(plane);
 
-		//RollOverThingy
+		// RollOverThingy
 		const rollOverMaterial = new THREE.MeshBasicMaterial({
 			color: 0xff0000,
 			opacity: 0.5,
@@ -325,7 +326,7 @@ export class PathVisualzer {
 			isWall: false
 		}).add();
 
-		//Target Cube
+		// Target Cube
 		const targetCubeMat = new THREE.MeshBasicMaterial({
 			color: 0x0000ff
 		});
@@ -348,7 +349,7 @@ export class PathVisualzer {
 		startCube.add();
 		this.targets.push(startCube);
 
-		//Add Grid Helper
+		// Add Grid Helper
 		const gridHelper = new THREE.GridHelper(this.gridSettings.size, this.gridSettings.division);
 		this.scene.add(gridHelper);
 	}

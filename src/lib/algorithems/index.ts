@@ -1,8 +1,9 @@
-import * as astar from './aStar';
-import * as dijkstra from './dijkstra';
 import type { SimpleSquare } from '$lib/classes/SimpleSquare';
 import type { PathVisualzer } from '$lib/main';
 import type { ALGOS } from '$lib/types';
+
+import * as astar from './aStar';
+import * as dijkstra from './dijkstra';
 
 export function getPaths(
 	instance: PathVisualzer,
@@ -50,21 +51,19 @@ export class AnimationHandler {
 	stop() {
 		this.hasStopped = true;
 	}
-	async animate(path: SimpleSquare[], type: 'shortest' | 'visited') {
-		for (let i = 0; i < path.length; ++i) {
-			if (this.hasStopped) {
-				return Promise.reject(false);
-			}
-			await new Promise<void>((resolve) =>
+	animate(path: SimpleSquare[], type: 'shortest' | 'visited') {
+		return new Promise((res, rej) => {
+			for (let i = 0; i < path.length; ++i) {
 				setTimeout(() => {
-					path[i].createCube(type);
-					if (i === path.length - 1) {
-						resolve();
+					if (this.hasStopped) {
+						rej(false);
+						return;
 					}
-				}, 4 * i)
-			);
-		}
-		return Promise.resolve(true);
+					path[i].createCube(type);
+					if (i === path.length - 1) res(true);
+				}, 4 * i);
+			}
+		});
 	}
 }
 export const algorithems = [astar, dijkstra];

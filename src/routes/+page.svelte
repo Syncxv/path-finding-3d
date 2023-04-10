@@ -1,12 +1,13 @@
 <script lang="ts">
 	import { onDestroy, onMount } from 'svelte';
-	import { PathVisualzer } from '../lib/main';
 	import * as THREE from 'three';
+
 	import { browser } from '$app/environment';
-	import type { SimpleSquare } from '../lib/classes/SimpleSquare';
 	import { algorithems, AnimationHandler, getPaths } from '$lib/algorithems';
-	import type { ALGOS } from '$lib/types';
 	import Tutorial from '$lib/components/Tutorial.svelte';
+	import type { ALGOS } from '$lib/types';
+
+	import { PathVisualzer } from '../lib/main';
 
 	let container!: HTMLDivElement;
 
@@ -33,11 +34,13 @@
 	async function onClick() {
 		resetPaths();
 		console.log('-----------------------------');
-		const target = instance.grid.flat().find((s) => s.isTarget)!;
-		const start = instance.grid.flat().find((s) => s.isStart)!;
+		const target = instance.grid.flat().find(s => s.isTarget)!;
+		const start = instance.grid.flat().find(s => s.isStart)!;
 		console.log(target, start);
 
 		const [visited, shortest] = getPaths(instance!, algo, start, target);
+
+		console.log(visited, shortest);
 
 		animation = new AnimationHandler(visited, shortest);
 		animation.start();
@@ -45,26 +48,26 @@
 
 	function reset() {
 		animation.stop();
-		console.log(instance.grid.flat().filter((m) => m.cubeMesh));
+		console.log(instance.grid.flat().filter(m => m.cubeMesh));
 		instance.grid
 			.flat()
-			.filter((m) => !(m.isTarget || m.isStart))
-			.forEach((elem) => elem.removeCube());
-		console.log(instance.grid.flat().filter((m) => m.cubeMesh));
+			.filter(m => !(m.isTarget || m.isStart))
+			.forEach(elem => elem.removeCube());
+		console.log(instance.grid.flat().filter(m => m.cubeMesh));
 	}
 
 	function resetPaths() {
 		instance.grid
 			.flat()
-			.filter((m) => m.visited || m.cubeMesh?.visited)
-			.forEach((elem) => elem.removeCube());
+			.filter(m => m.visited || m.cubeMesh?.visited)
+			.forEach(elem => elem.removeCube());
 	}
 
 	function resetWalls() {
 		instance.grid
 			.flat()
-			.filter((m) => m.isWall)
-			.forEach((elem) => elem.removeCube());
+			.filter(m => m.isWall)
+			.forEach(elem => elem.removeCube());
 	}
 </script>
 

@@ -37,7 +37,10 @@
 
 			<button
 				on:click={() => {
-					if (selectedPageIndex === TutorialPages.length - 1) return (isOpen = false);
+					if (selectedPageIndex === TutorialPages.length - 1) {
+						isOpen = false;
+						return;
+					}
 					selectedPageIndex++;
 					selectedPage = TutorialPages[selectedPageIndex];
 				}}

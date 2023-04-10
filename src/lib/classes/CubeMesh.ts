@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+
 import type { PathVisualzer } from '../main';
 import type { CubeProps } from '../types';
 import { SimpleSquare } from './SimpleSquare';

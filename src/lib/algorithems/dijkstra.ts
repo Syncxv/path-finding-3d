@@ -1,4 +1,5 @@
 import type { CallbackFunctionVariadic } from '$lib/types';
+
 import type { SimpleSquare } from '../classes/SimpleSquare';
 import type { Grid } from '../main';
 import { flatten } from '../utils/flatten';
@@ -87,7 +88,7 @@ export default class PriorityQueue<T extends object> {
 			if (right < this._size && this._comparator!(object, this._queue[right]) > 0) {
 				object = this._queue[(child = right)];
 			}
-			//compare item and child if bigger is item, break
+			// compare item and child if bigger is item, break
 			if (this._comparator!(item, object) <= 0) {
 				break;
 			}
@@ -178,7 +179,7 @@ export default class PriorityQueue<T extends object> {
 	}
 
 	public toArray(): Array<T> {
-		return this._queue.filter((item) => item);
+		return this._queue.filter(item => item);
 	}
 
 	public toString(): string {
@@ -190,7 +191,7 @@ export default class PriorityQueue<T extends object> {
 		return {
 			next: () => {
 				return {
-					done: i == this._size,
+					done: i === this._size,
 					value: <T>this._queue[i++]
 				};
 			}
@@ -212,13 +213,15 @@ export const dijstra = (grid: Grid, start: SimpleSquare, target: SimpleSquare) =
 			if (closestNode.distance === Infinity) return visitedInOrder;
 			closestNode.visited = true;
 			visitedInOrder.push(closestNode);
-			if (closestNode == target) return visitedInOrder;
+			if (closestNode === target) return visitedInOrder;
 			updateNearbyNodes(closestNode, grid);
 		}
 	}
+
+	return [];
 };
 
-export function getShortestPath(target: SimpleSquare) {
+export function getShortestPath(target: SimpleSquare): SimpleSquare[] {
 	const shortestNodes = [];
 	let currNode = target;
 	while (currNode !== null) {
@@ -228,21 +231,24 @@ export function getShortestPath(target: SimpleSquare) {
 	return shortestNodes;
 }
 
-function updateNearbyNodes(square: SimpleSquare | SimpleSquare, gridy: Grid) {
+function updateNearbyNodes(square: SimpleSquare | SimpleSquare, gridy: Grid): void {
 	const nearSquares = getNearestUnvisitedNodes(square, gridy);
-	nearSquares.forEach((nearNode) => {
+	nearSquares.forEach(nearNode => {
 		nearNode.distance = square.distance + 1;
 		nearNode.prevSquare = square;
 	});
 }
-function getNearestUnvisitedNodes(square: SimpleSquare | SimpleSquare, gridy: Grid) {
-	const res: (SimpleSquare | SimpleSquare)[] = [];
+function getNearestUnvisitedNodes(
+	square: SimpleSquare | SimpleSquare,
+	gridy: Grid
+): SimpleSquare[] {
+	const res: SimpleSquare[] = [];
 	const [i, j] = square.getIndex();
 	if (gridy[i + 1]) res.push(gridy[i + 1][j]);
 	if (gridy[i - 1]) res.push(gridy[i - 1][j]);
 	if (gridy[i][j + 1]) res.push(gridy[i][j + 1]);
 	if (gridy[i][j - 1]) res.push(gridy[i][j - 1]);
-	return res.filter((s) => !s.visited);
+	return res.filter(s => !s.visited);
 }
 
 function sortByDistance(unvisitedNodes: (SimpleSquare | SimpleSquare)[]) {
