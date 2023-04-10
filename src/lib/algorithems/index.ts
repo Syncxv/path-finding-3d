@@ -9,19 +9,18 @@ export function getPaths(
 	algo: keyof typeof ALGOS,
 	start: SimpleSquare,
 	target: SimpleSquare
-) {
+): [SimpleSquare[], SimpleSquare[]] {
 	switch (algo) {
 		case 'astar': {
-			// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-			const visited = astar.astar(instance.grid, start, target)!;
-			const shortest = astar.getShortestPtah(start, target);
+			const visited = astar.astar(instance.grid, start, target);
+			const shortest = astar.getShortestPath(start, target);
 
 			return [visited, shortest];
 		}
 		case 'dijkstra': {
-			// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-			const visited = dijkstra.dijstra(instance.grid, start, target)!;
-			const shortest = dijkstra.getShortestPtah(target);
+			const visited = dijkstra.dijstra(instance.grid, start, target);
+			if (!visited) return [[], []];
+			const shortest = dijkstra.getShortestPath(target);
 
 			return [visited, shortest];
 		}
@@ -37,31 +36,35 @@ export class AnimationHandler {
 	visited: SimpleSquare[];
 	shortest: SimpleSquare[];
 
-	constructor(visted: SimpleSquare[], shortest: SimpleSquare[]) {
-		this.visited = visted;
+	constructor(visited: SimpleSquare[], shortest: SimpleSquare[]) {
+		this.visited = visited;
 		this.shortest = shortest;
 		return this;
 	}
 
 	async start() {
-		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-		await this.animate(this.visited!, 'visited');
+		await this.animate(this.visited, 'visited');
 		await this.animate(this.shortest, 'shortest');
 	}
 
 	stop() {
 		this.hasStopped = true;
 	}
-	animate(path: SimpleSquare[], type: 'shortest' | 'visited') {
-		return new Promise((res, rej) => {
-			for (let i = 0; i < path.length; ++i) {
-				setTimeout(() => {
-					if (this.hasStopped) return rej(false);
-					path[i].createCube(type);
-					if (i == path.length - 1) res(true);
-				}, 4 * i);
+	async animate(path: SimpleSquare[], type: 'shortest' | 'visited') {
+		for (let i = 0; i < path.length; ++i) {
+			if (this.hasStopped) {
+				return Promise.reject(false);
 			}
-		});
+			await new Promise<void>((resolve) =>
+				setTimeout(() => {
+					path[i].createCube(type);
+					if (i === path.length - 1) {
+						resolve();
+					}
+				}, 4 * i)
+			);
+		}
+		return Promise.resolve(true);
 	}
 }
 export const algorithems = [astar, dijkstra];

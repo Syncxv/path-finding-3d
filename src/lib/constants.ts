@@ -4,8 +4,10 @@ export interface Tuto {
 	media?: {
 		type: 'img' | 'video';
 		src: string;
+		loaded?: boolean;
 	};
 }
+
 export const TutorialPages: Tuto[] = [
 	{
 		heading: 'Welcome to path finding 3d',

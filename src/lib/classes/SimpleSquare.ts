@@ -25,23 +25,18 @@ export class SimpleSquare {
 		instance: PathVisualzer,
 		i: number,
 		j: number,
-		options: CubeProps = {
-			isWall: false,
-			isStart: false,
-			isTarget: false,
-			isHidden: true,
-			shouldAddToGrid: true
-		},
+		options?: CubeProps,
 		cubeMesh?: CubeMesh
 	) {
 		this.x = i;
 		this.y = j;
 		this.instance = instance;
 		this.distance = Infinity;
-		this.isStart = options.isStart;
-		this.isTarget = options.isTarget;
-		this.isWall = options.isWall;
-		this.shouldAddToGrid = options.shouldAddToGrid;
+		this.isStart = options?.isStart ?? false;
+		this.isTarget = options?.isTarget ?? false;
+		this.isWall = options?.isWall ?? false;
+		this.shouldAddToGrid = options?.shouldAddToGrid ?? true;
+		this.isHidden = options?.isHidden ?? true;
 		this.isHidden = false;
 		this.visited = false;
 		this.prevSquare = null;
@@ -89,7 +84,7 @@ export class SimpleSquare {
 		});
 		cube.visited = true;
 		cube.position.copy(this.getPositionFromIndex());
-		cube.setPositon();
+		cube.setPosition();
 		this.instance.scene.add(cube);
 		this.cubeMesh = cube;
 	}

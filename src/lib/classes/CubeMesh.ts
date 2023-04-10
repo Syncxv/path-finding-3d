@@ -22,23 +22,17 @@ export class CubeMesh extends THREE.Mesh {
 		instance: PathVisualzer,
 		material: THREE.Material,
 		size: number,
-		options: CubeProps = {
-			isWall: false,
-			isStart: false,
-			isTarget: false,
-			isHidden: true,
-			shouldAddToGrid: true
-		}
+		options?: CubeProps
 	) {
 		const geometry = new THREE.BoxGeometry(size, size, size);
 		super(geometry, material);
 		this.instance = instance;
-		this.isWall = options.isWall;
-		this.isTarget = options.isTarget;
-		this.isStart = options.isStart;
-		this.isHidden = options.isHidden;
-		this.shouldAddToGrid = options.shouldAddToGrid;
-		this.options = options;
+		this.options = options ?? ({} as CubeProps);
+		this.isWall = this.options.isWall ?? false;
+		this.isTarget = this.options.isTarget ?? false;
+		this.isStart = this.options.isStart ?? false;
+		this.isHidden = this.options.isHidden ?? true;
+		this.shouldAddToGrid = this.options.shouldAddToGrid ?? true;
 		this.squareSize = size;
 		this._geometry = geometry;
 		this.type = 'CubeMesh';
@@ -50,12 +44,13 @@ export class CubeMesh extends THREE.Mesh {
 		return this;
 	}
 
-	setPositon() {
+	setPosition() {
+		const squareSize = this._geometry.parameters.width;
 		this.position
-			.divideScalar(this.squareSize)
+			.divideScalar(squareSize)
 			.floor()
-			.multiplyScalar(this.squareSize)
-			.addScalar(this.squareSize / 2);
+			.multiplyScalar(squareSize)
+			.addScalar(squareSize / 2);
 
 		return this;
 	}

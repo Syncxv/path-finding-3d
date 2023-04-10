@@ -14,7 +14,21 @@
 				<h1>{selectedPage.heading}</h1>
 				<p>{selectedPage.description}</p>
 				{#if selectedPage.media?.type === 'img'}
-					<div class="img-wrapper"><img src={selectedPage.media?.src} alt="" /></div>
+					{#if selectedPage.media && selectedPage.media.src}
+						<div class="img-wrapper">
+							<img
+								src={selectedPage.media.src}
+								alt=""
+								on:load={() => {
+									if (selectedPage.media) selectedPage.media.loaded = true;
+								}}
+								style={selectedPage.media.loaded ? '' : 'display:none'}
+							/>
+						</div>
+						<p style={!selectedPage.media.loaded ? 'margin-top: 1rem' : 'display:none'}>
+							Loading image...
+						</p>
+					{/if}
 				{/if}
 			</div>
 		</div>
@@ -26,8 +40,10 @@
 					if (selectedPageIndex === TutorialPages.length - 1) return (isOpen = false);
 					selectedPageIndex++;
 					selectedPage = TutorialPages[selectedPageIndex];
-				}}>{selectedPageIndex === TutorialPages.length - 1 ? 'Finish' : 'Next'}</button
+				}}
 			>
+				{selectedPageIndex === TutorialPages.length - 1 ? 'Finish' : 'Next'}
+			</button>
 		</div>
 	</div>
 	<div class="backdrop" />
@@ -73,6 +89,6 @@
 		width: 100vw;
 		inset: 0;
 		z-index: 2;
-		pointer-events: none;
+		/* pointer-events: none; */
 	}
 </style>

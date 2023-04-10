@@ -46,13 +46,13 @@ export const astar = (grid: Grid, start: SimpleSquare, target: SimpleSquare): Si
 	return [];
 };
 
-export const getShortestPtah = (start: SimpleSquare, target: SimpleSquare) => {
+export const getShortestPath = (start: SimpleSquare, target: SimpleSquare) => {
 	const path: SimpleSquare[] = [];
-	let currentNode = target;
+	let currentNode: SimpleSquare | null = target;
 
-	while (currentNode != start) {
-		path.push(currentNode.parent!);
-		currentNode = currentNode.parent!;
+	while (currentNode !== start && currentNode !== null && currentNode.parent !== null) {
+		path.push(currentNode.parent);
+		currentNode = currentNode.parent;
 	}
 
 	return path.reverse();

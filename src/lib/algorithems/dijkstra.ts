@@ -218,7 +218,7 @@ export const dijstra = (grid: Grid, start: SimpleSquare, target: SimpleSquare) =
 	}
 };
 
-export function getShortestPtah(target: SimpleSquare) {
+export function getShortestPath(target: SimpleSquare) {
 	const shortestNodes = [];
 	let currNode = target;
 	while (currNode !== null) {

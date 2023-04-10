@@ -101,6 +101,7 @@ export class PathVisualzer {
 		);
 		this.renderer.domElement.id = 'main-canvas';
 		this.container.appendChild(this.renderer.domElement);
+
 		this.setUpGrid();
 		this.render();
 
@@ -112,71 +113,74 @@ export class PathVisualzer {
 		document.addEventListener('keydown', this.onDocumentKeyDown);
 		document.addEventListener('keyup', this.onDocumentKeyUp);
 
-		this.dragControls.addEventListener('dragstart', () => {
-			console.log('DRAG SSTART');
-			this.isDraging = true;
-		});
-
-		this.dragControls.addEventListener('drag', (event) => {
-			console.log('DRAGGING');
-			const intersects = this.raycaster.intersectObjects(this.planeObjectArr, false);
-
-			const intersect = intersects[0];
-			console.log(intersects);
-			if (
-				(intersect && !(intersect.object as CubeMesh).isTarget) ||
-				!(intersect.object as CubeMesh).isStart
-			) {
-				if (intersect.face) {
-					event.object.position.copy(intersect.point).add(intersect.face.normal);
-					event.object.setPositon();
-				}
-			}
-		});
-
-		this.dragControls.addEventListener('dragend', (event) => {
-			const intersects = this.raycaster.intersectObjects(this.planeObjectArr, false);
-
-			const intersect = intersects[0];
-			const object = event.object as CubeMesh;
-
-			if (
-				(intersect && !(intersect.object as CubeMesh).isTarget) ||
-				!(intersect.object as CubeMesh).isStart
-			) {
-				if (intersect.face) {
-					object.position.copy(intersect.point).add(intersect.face.normal);
-					object.setPositon();
-				}
-				//reset that square
-				const [i, j] = object.getIndex();
-				const gridPos = this.grid[i][j];
-
-				if (object.isTarget) {
-					const previousCube = this.grid.flat().find((m) => m.isTarget);
-					if (!previousCube) return;
-					previousCube.isTarget = false;
-					previousCube.cubeMesh = null;
-					object.isTarget = true;
-					gridPos.isTarget = true;
-					gridPos.cubeMesh = object;
-					gridPos.cubeMesh.isTarget = true;
-				} else {
-					const previousCube = this.grid.flat().find((m) => m.isStart);
-					if (!previousCube) return;
-					previousCube.isStart = false;
-					previousCube.cubeMesh = null;
-					object.isStart = true;
-					gridPos.isStart = true;
-					gridPos.cubeMesh = object;
-					gridPos.cubeMesh.isStart = true;
-				}
-			}
-			this.isDraging = false;
-		});
+		this.dragControls.addEventListener('dragstart', this.onDragStart);
+		this.dragControls.addEventListener('drag', this.onDrag);
+		this.dragControls.addEventListener('dragend', this.onDragEnd);
 
 		this.initalized = true;
 	}
+
+	onDragStart = () => {
+		console.log('DRAG SSTART');
+		this.rollOverMesh.visible = false;
+		this.isDraging = true;
+	};
+
+	onDrag = (event: THREE.Event) => {
+		console.log('DRAGGING');
+		const intersects = this.raycaster.intersectObjects(this.planeObjectArr, false);
+
+		const intersect = intersects[0];
+		const intersectObj = intersect.object as CubeMesh;
+		const object = event.object as CubeMesh;
+
+		if ((intersect && !intersectObj.isTarget) || !intersectObj.isStart) {
+			if (intersect.face) {
+				object.position.copy(intersect.point).add(intersect.face.normal);
+				object.setPosition();
+			}
+		}
+	};
+
+	onDragEnd = (event: THREE.Event) => {
+		const intersects = this.raycaster.intersectObjects(this.planeObjectArr, false);
+
+		const intersect = intersects[0];
+		const intersectObj = intersect.object as CubeMesh;
+		const object = event.object as CubeMesh;
+
+		if ((intersect && !intersectObj.isTarget) || !intersectObj.isStart) {
+			if (intersect.face) {
+				object.position.copy(intersect.point).add(intersect.face.normal);
+				object.setPosition();
+			}
+			//reset that square
+			const [i, j] = object.getIndex();
+			const gridPos = this.grid[i][j];
+
+			if (object.isTarget) {
+				const previousCube = this.grid.flat().find((m) => m.isTarget);
+				if (!previousCube) return;
+				previousCube.isTarget = false;
+				previousCube.cubeMesh = null;
+				object.isTarget = true;
+				gridPos.isTarget = true;
+				gridPos.cubeMesh = object;
+				gridPos.cubeMesh.isTarget = true;
+			} else {
+				const previousCube = this.grid.flat().find((m) => m.isStart);
+				if (!previousCube) return;
+				previousCube.isStart = false;
+				previousCube.cubeMesh = null;
+				object.isStart = true;
+				gridPos.isStart = true;
+				gridPos.cubeMesh = object;
+				gridPos.cubeMesh.isStart = true;
+			}
+		}
+		this.isDraging = false;
+		this.rollOverMesh.visible = true;
+	};
 
 	onWindowResize() {
 		this.camera.aspect =
@@ -203,7 +207,7 @@ export class PathVisualzer {
 			// console.log(intersect.point, intersect.face?.normal);
 			if (intersect.face) {
 				this.rollOverMesh.position.copy(intersect.point).add(intersect.face.normal);
-				this.rollOverMesh.setPositon();
+				this.rollOverMesh.setPosition();
 			}
 			if (this.isMouseDown && this.isShiftDown) {
 				this.removeCube(intersects);
@@ -268,7 +272,7 @@ export class PathVisualzer {
 			});
 			if (intersect.face) {
 				cube.position.copy(intersect.point).add(intersect.face.normal);
-				cube.setPositon();
+				cube.setPosition();
 			}
 			this.scene.add(cube);
 			const [i, j] = cube.getIndex();
@@ -278,6 +282,7 @@ export class PathVisualzer {
 		}
 	}
 
+	// TODO: fix this. currently intersects only has plane object in it
 	removeCube(intersects: THREE.Intersection<THREE.Object3D<THREE.Event>>[]) {
 		const [intersect] = intersects;
 		if (intersect.object.type == 'CubeMesh') {
@@ -295,7 +300,7 @@ export class PathVisualzer {
 		const intersect = intersects[0];
 		if (intersect.face) {
 			this.rollOverMesh.position.copy(intersect.point).add(intersect.face.normal);
-			this.rollOverMesh.setPositon();
+			this.rollOverMesh.setPosition();
 		}
 	}
 
@@ -325,14 +330,10 @@ export class PathVisualzer {
 			color: 0x0000ff
 		});
 		const targetCube = new CubeMesh(this, targetCubeMat, this.gridSettings.squareSize, {
-			isTarget: true,
-			isHidden: false,
-			isStart: false,
-			isWall: false,
-			shouldAddToGrid: true
+			isTarget: true
 		});
 		targetCube.position.set(this.gridSettings.size / 4, 0, 0);
-		targetCube.setPositon();
+		targetCube.setPosition();
 		targetCube.add();
 		this.targets.push(targetCube);
 
@@ -340,14 +341,10 @@ export class PathVisualzer {
 			color: 0xff00000
 		});
 		const startCube = new CubeMesh(this, startCubeMat, this.gridSettings.squareSize, {
-			isTarget: false,
-			isHidden: false,
-			isStart: true,
-			isWall: false,
-			shouldAddToGrid: true
+			isStart: true
 		});
 		startCube.position.set(-this.gridSettings.size / 4, 0, 0);
-		startCube.setPositon();
+		startCube.setPosition();
 		startCube.add();
 		this.targets.push(startCube);
 
