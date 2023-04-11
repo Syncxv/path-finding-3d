@@ -264,9 +264,8 @@ export class PathVisualzer {
 
 	addCube(planeIntersect: THREE.Intersection<THREE.Object3D<THREE.Event>>) {
 		if (this.isDraging) return;
-		if (!planeIntersect || !planeIntersect.face) {
-			return;
-		}
+		if (!planeIntersect || !planeIntersect.face) return;
+
 		console.log('adding cube');
 		const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
 		const cube = new CubeMesh(this, material, this.gridSettings.squareSize, {
@@ -284,7 +283,6 @@ export class PathVisualzer {
 		gridItem.isWall = true;
 	}
 
-	// TODO: fix this. currently intersects only has plane object in it
 	removeCube(intersects: THREE.Intersection<CubeMesh>[],) {
 		const [intersect] = intersects;
 		if (intersect && intersect.object.type === 'CubeMesh') {
